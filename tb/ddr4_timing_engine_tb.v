@@ -118,6 +118,126 @@ module ddr4_timing_engine_tb;
             $fatal(1, "SIMULATION FAILED: tRFC should be OK after wait");
         $display("tRFC recovered correctly");
 
+        // --- Test 4: ACT -> tRAS, tRC, tRRD_L, tRRD_S, tFAW ---
+        $display("Test 4: ACT -> tRAS, tRC, tRRD_L, tRRD_S, tFAW");
+        send_cmd(3'd4, 2'd0, 2'd0); // ACT bank_group=0
+
+        @(posedge clk);
+        if (timing_ok[2] !== 1'b0)
+            $fatal(1, "SIMULATION FAILED: tRAS should be busy after ACT");
+        if (timing_ok[3] !== 1'b0)
+            $fatal(1, "SIMULATION FAILED: tRC should be busy after ACT");
+        if (timing_ok[6] !== 1'b0)
+            $fatal(1, "SIMULATION FAILED: tRRD_L should be busy after ACT");
+        if (timing_ok[7] !== 1'b0)
+            $fatal(1, "SIMULATION FAILED: tRRD_S should be busy after ACT");
+        if (timing_ok[12] !== 1'b0)
+            $fatal(1, "SIMULATION FAILED: tFAW should be busy after ACT");
+
+        repeat(20) @(posedge clk);
+        if (timing_ok[2] !== 1'b1)
+            $fatal(1, "SIMULATION FAILED: tRAS should be OK after wait");
+        if (timing_ok[3] !== 1'b1)
+            $fatal(1, "SIMULATION FAILED: tRC should be OK after wait");
+        if (timing_ok[6] !== 1'b1)
+            $fatal(1, "SIMULATION FAILED: tRRD_L should be OK after wait");
+        if (timing_ok[7] !== 1'b1)
+            $fatal(1, "SIMULATION FAILED: tRRD_S should be OK after wait");
+        if (timing_ok[12] !== 1'b1)
+            $fatal(1, "SIMULATION FAILED: tFAW should be OK after wait");
+        $display("tRAS, tRC, tRRD_L, tRRD_S, tFAW recovered correctly");
+
+        // --- Test 5: ACT (same bank group) -> tRRD_L; ACT (diff bg) -> tRRD_S ---
+        $display("Test 5: back-to-back ACT same/diff bank group");
+        // ACT to bg=0 ba=0
+        send_cmd(3'd4, 2'd0, 2'd0);
+        @(posedge clk);
+        if (timing_ok[6] !== 1'b0)
+            $fatal(1, "SIMULATION FAILED: tRRD_L should be busy after ACT bg0");
+        // Second ACT to bg=1 (different bank group) — tRRD_S loads
+        send_cmd(3'd4, 2'd1, 2'd0);
+        @(posedge clk);
+        if (timing_ok[7] !== 1'b0)
+            $fatal(1, "SIMULATION FAILED: tRRD_S should be busy after second ACT diff bg");
+        repeat(10) @(posedge clk);
+        if (timing_ok[6] !== 1'b1)
+            $fatal(1, "SIMULATION FAILED: tRRD_L should recover");
+        if (timing_ok[7] !== 1'b1)
+            $fatal(1, "SIMULATION FAILED: tRRD_S should recover");
+        $display("back-to-back ACT same/diff bank group OK");
+
+        // --- Test 6: WR -> tWR, tWTR_L, tWTR_S, tCCD_L, tCCD_S ---
+        $display("Test 6: WR -> tWR, tWTR_L, tWTR_S, tCCD_L, tCCD_S");
+        send_cmd(3'd5, 2'd0, 2'd0); // WR bank_group=0
+
+        @(posedge clk);
+        if (timing_ok[8] !== 1'b0)
+            $fatal(1, "SIMULATION FAILED: tWR should be busy after WR");
+        if (timing_ok[9] !== 1'b0)
+            $fatal(1, "SIMULATION FAILED: tWTR_L should be busy after WR");
+        if (timing_ok[10] !== 1'b0)
+            $fatal(1, "SIMULATION FAILED: tWTR_S should be busy after WR");
+        if (timing_ok[4] !== 1'b0)
+            $fatal(1, "SIMULATION FAILED: tCCD_L should be busy after WR");
+        if (timing_ok[5] !== 1'b0)
+            $fatal(1, "SIMULATION FAILED: tCCD_S should be busy after WR");
+
+        repeat(20) @(posedge clk);
+        if (timing_ok[8] !== 1'b1)
+            $fatal(1, "SIMULATION FAILED: tWR should be OK after wait");
+        if (timing_ok[9] !== 1'b1)
+            $fatal(1, "SIMULATION FAILED: tWTR_L should be OK after wait");
+        if (timing_ok[10] !== 1'b1)
+            $fatal(1, "SIMULATION FAILED: tWTR_S should be OK after wait");
+        if (timing_ok[4] !== 1'b1)
+            $fatal(1, "SIMULATION FAILED: tCCD_L should be OK after wait");
+        if (timing_ok[5] !== 1'b1)
+            $fatal(1, "SIMULATION FAILED: tCCD_S should be OK after wait");
+        $display("tWR, tWTR_L, tWTR_S, tCCD_L, tCCD_S recovered correctly");
+
+        // --- Test 7: RD -> tRTP, tCCD_L, tCCD_S ---
+        $display("Test 7: RD -> tRTP, tCCD_L, tCCD_S");
+        send_cmd(3'd6, 2'd0, 2'd0); // RD bank_group=0
+
+        @(posedge clk);
+        if (timing_ok[11] !== 1'b0)
+            $fatal(1, "SIMULATION FAILED: tRTP should be busy after RD");
+        if (timing_ok[4] !== 1'b0)
+            $fatal(1, "SIMULATION FAILED: tCCD_L should be busy after RD");
+        if (timing_ok[5] !== 1'b0)
+            $fatal(1, "SIMULATION FAILED: tCCD_S should be busy after RD");
+
+        repeat(15) @(posedge clk);
+        if (timing_ok[11] !== 1'b1)
+            $fatal(1, "SIMULATION FAILED: tRTP should be OK after wait");
+        $display("tRTP, tCCD_L, tCCD_S from RD OK");
+
+        // --- Test 8: MRS -> tMOD ---
+        $display("Test 8: MRS -> tMOD");
+        send_cmd(3'd1, 2'd0, 2'd0); // MRS
+
+        @(posedge clk);
+        if (timing_ok[14] !== 1'b0)
+            $fatal(1, "SIMULATION FAILED: tMOD should be busy after MRS");
+
+        repeat(15) @(posedge clk);
+        if (timing_ok[14] !== 1'b1)
+            $fatal(1, "SIMULATION FAILED: tMOD should be OK after wait");
+        $display("tMOD recovered correctly");
+
+        // --- Test 9: ZQCL -> tZQ ---
+        $display("Test 9: ZQCL -> tZQ");
+        send_cmd(3'd7, 2'd0, 2'd0); // ZQCL
+
+        @(posedge clk);
+        if (timing_ok[15] !== 1'b0)
+            $fatal(1, "SIMULATION FAILED: tZQ should be busy after ZQCL");
+
+        repeat(20) @(posedge clk);
+        if (timing_ok[15] !== 1'b1)
+            $fatal(1, "SIMULATION FAILED: tZQ should be OK after wait");
+        $display("tZQ recovered correctly");
+
         $display("SIMULATION PASSED");
         $finish;
     end

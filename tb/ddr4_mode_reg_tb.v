@@ -101,6 +101,38 @@ module ddr4_mode_reg_tb;
         if (data5[0] !== 1'b1)
             $fatal(1, "SIMULATION FAILED: MR5[0] CA_PARITY should be 1");
 
+        // --- Test 2: Boundary CL minimum (CL=9, CWL=9) ---
+        cfg_cl  = 5'd9;
+        cfg_cwl = 5'd9;
+        @(posedge clk);
+        read_mr(3'd0, data0);
+        read_mr(3'd2, data2);
+        // CL=9 (01001): cfg_cl[2:0]=001, cfg_cl[3]=1
+        // MR0[6:4] = cfg_cl[2:0] = 3'b001; MR0[12] = cfg_cl[3] = 1
+        if (data0[6:4] !== 3'b001 || data0[12] !== 1'b1)
+            $fatal(1, "SIMULATION FAILED: MR0 CL boundary min(9): got bits[6:4]=%b bit12=%b",
+                   data0[6:4], data0[12]);
+        // MR2[5:3] = CWL-9 = 0 → 3'b000
+        if (data2[5:3] !== 3'b000)
+            $fatal(1, "SIMULATION FAILED: MR2 CWL boundary min(9): got bits[5:3]=%b", data2[5:3]);
+        $display("Boundary min CL=9/CWL=9 OK: MR0=0x%05x MR2=0x%05x", data0, data2);
+
+        // --- Test 3: Boundary CL large (CL=24, CWL=18) ---
+        cfg_cl  = 5'd24;
+        cfg_cwl = 5'd18;
+        @(posedge clk);
+        read_mr(3'd0, data0);
+        read_mr(3'd2, data2);
+        // CL=24 (11000): cfg_cl[2:0]=000, cfg_cl[3]=1
+        // MR0[6:4] = 3'b000; MR0[12] = 1
+        if (data0[6:4] !== 3'b000 || data0[12] !== 1'b1)
+            $fatal(1, "SIMULATION FAILED: MR0 CL boundary large(24): got bits[6:4]=%b bit12=%b",
+                   data0[6:4], data0[12]);
+        // CWL=18: cwl_enc = (18-9)[2:0] = 9[2:0] = 3'b001
+        if (data2[5:3] !== 3'b001)
+            $fatal(1, "SIMULATION FAILED: MR2 CWL boundary large(18): got bits[5:3]=%b", data2[5:3]);
+        $display("Boundary large CL=24/CWL=18 OK: MR0=0x%05x MR2=0x%05x", data0, data2);
+
         $display("SIMULATION PASSED");
         $finish;
     end

@@ -6,5 +6,11 @@ Test 3: self-refresh
 sr_active asserted
 ref_req suppressed during self-refresh
 sr_active deasserted
+Test 5: FGRx2 mode — effective period = trefi/2 = 10
+FGRx2 ref_req asserted after 11 cycles (OK, <=15)
+Test 6: FGRx4 mode — effective period = trefi/4 = 5
+FGRx4 ref_req asserted after 6 cycles (OK, <=10)
+Test 7: PBR — bank rotates through all 16 banks
+PBR rotated through all 16 banks OK
 SIMULATION PASSED
-tb/ddr4_refresh_ctrl_tb.v:104: $finish called at 625000 (1ps)
+tb/ddr4_refresh_ctrl_tb.v:193: $finish called at 2810000 (1ps)

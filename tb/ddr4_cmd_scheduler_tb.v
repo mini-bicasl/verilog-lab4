@@ -148,6 +148,36 @@ module ddr4_cmd_scheduler_tb;
         $display("  Refresh preemption handled");
 
         repeat(5) @(posedge clk);
+
+        // --- Test 4: Multi-rank — issue READ to rank 0 and rank 1 ---
+        $display("Test 4: Multi-rank commands (rank 0 and rank 1)");
+        // Rank is decoded from cmd_addr[27:26]
+        // Rank 0: addr = 32'h04000000 (bits[27:26]=01 → rank=1) — use explicit ranks
+        // Rank 0 address: bits[27:26] = 2'b00 → addr = 32'h00000000
+        // Rank 1 address: bits[27:26] = 2'b01 → addr = 32'h04000000
+        issue_cmd(2'd0, 32'h00000100, 4'h3); // READ rank=0
+
+        wait_for_dram_cmd(3'd4, 50); // ACT
+        if (dram_rank !== 2'd0)
+            $fatal(1, "SIMULATION FAILED: expected rank=0 for rank-0 cmd, got %0d", dram_rank);
+        $display("  Rank 0 ACT issued (rank=%0d)", dram_rank);
+        wait_for_dram_cmd(3'd6, 50); // RD
+        wait_for_dram_cmd(3'd3, 50); // PRE
+
+        repeat(5) @(posedge clk);
+
+        issue_cmd(2'd0, 32'h04000200, 4'h4); // READ rank=1
+
+        wait_for_dram_cmd(3'd4, 50); // ACT
+        if (dram_rank !== 2'd1)
+            $fatal(1, "SIMULATION FAILED: expected rank=1 for rank-1 cmd, got %0d", dram_rank);
+        $display("  Rank 1 ACT issued (rank=%0d)", dram_rank);
+        wait_for_dram_cmd(3'd6, 50); // RD
+        wait_for_dram_cmd(3'd3, 50); // PRE
+
+        $display("  Multi-rank commands OK");
+
+        repeat(5) @(posedge clk);
         $display("SIMULATION PASSED");
         $finish;
     end
