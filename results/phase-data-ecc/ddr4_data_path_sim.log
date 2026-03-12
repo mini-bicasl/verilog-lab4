@@ -1,0 +1,16 @@
+VCD info: dumpfile results/phase-data-ecc/ddr4_data_path.vcd opened for output.
+=== Test 1: Single write, ECC encode, PHY OE timing ===
+PASS T1a: phy_dq_out matches ECC-encoded word
+PASS T1b: DQS and DQ OE asserted
+PASS T1c: OE de-asserted after write
+=== Test 2: Clean read path ===
+PASS T2: clean read data, correct ID, no ECC error
+=== Test 3: Correctable ECC error on read ===
+PASS T3: SBE detected, data corrected
+=== Test 4: Back-to-back writes ===
+PASS T4: back-to-back writes completed without backpressure
+=== Test 5: FIFO backpressure ===
+PASS T5: FIFO backpressure test run (wr_ready=1)
+=== RESULTS: 7 passed, 0 failed ===
+PASS: ddr4_data_path all tests passed
+tb/ddr4_data_path_tb.v:337: $finish called at 415000 (1ps)

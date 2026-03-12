@@ -49,18 +49,18 @@ Implements the data flow between the host-facing FIFO and the PHY pads, includin
 
 ### RTL Modules
 
-- [ ] `ddr4_ecc_engine`: SECDED (72,64) encoder and decoder; syndrome computation; single-bit correction; double-bit detection; error bit identification
-- [ ] `ddr4_data_path`: Read/write data FIFOs; 8:1 serializer/deserializer bridge; DQS preamble/postamble control; ECC engine integration; read-data correction pipeline
+- [x] `ddr4_ecc_engine`: SECDED (72,64) encoder and decoder; syndrome computation; single-bit correction; double-bit detection; error bit identification
+- [x] `ddr4_data_path`: Read/write data FIFOs; 8:1 serializer/deserializer bridge; DQS preamble/postamble control; ECC engine integration; read-data correction pipeline
 
 ### Testbenches
 
-- [ ] `ddr4_ecc_engine`: TB — encodes known data; injects single-bit errors at every bit position (0–71) and verifies correction; injects two-bit errors and verifies detection; verifies syndrome = 0 on clean data
-- [ ] `ddr4_data_path`: TB — writes data through FIFO; reads back and verifies data integrity; injects correctable ECC error and checks rd_ecc_err; verifies DQS OE timing
+- [x] `ddr4_ecc_engine`: TB — encodes known data; injects single-bit errors at every bit position (0–71) and verifies correction; injects two-bit errors and verifies detection; verifies syndrome = 0 on clean data
+- [x] `ddr4_data_path`: TB — writes data through FIFO; reads back and verifies data integrity; injects correctable ECC error and checks rd_ecc_err; verifies DQS OE timing
 
 ### Documentation
 
-- [ ] `docs/ddr4_ecc_engine.md`: SECDED H-matrix description, codeword layout, encoder/decoder flow, error classification table
-- [ ] `docs/ddr4_data_path.md`: FIFO depth and backpressure behavior, serialization pipeline, DQS timing diagram
+- [x] `docs/ddr4_ecc_engine.md`: SECDED H-matrix description, codeword layout, encoder/decoder flow, error classification table
+- [x] `docs/ddr4_data_path.md`: FIFO depth and backpressure behavior, serialization pipeline, DQS timing diagram
 
 ### Verification / Coverage
 
