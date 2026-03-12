@@ -223,6 +223,107 @@ module ddr4_phy_iface_tb;
         pass_cnt = pass_cnt + 1;
         wait_clk(3);
 
+        // -------------------------------------------------------
+        // Test 7: DQ OE transitions — write→read→write toggle
+        // -------------------------------------------------------
+        $display("Test 7: DQ OE transitions (write-OE → read-tristate → write-OE)");
+        // Phase A: write OE asserted
+        @(negedge clk);
+        ctrl_dq_oe  = {DQS_WIDTH{1'b1}};
+        ctrl_dqs_oe = {DQS_WIDTH{1'b1}};
+        ctrl_dq_out = 72'hFF00_FF00_FF00_FF00_FF;
+        @(posedge clk); @(posedge clk); #1;
+        if (ddr4_dq_out[7:0] !== ctrl_dq_out[7:0])
+            $fatal(1, "T7A FAIL: dq_out[7:0]=%h during write-OE", ddr4_dq_out[7:0]);
+        // Check DQS strobing (should track clk)
+        // Phase B: switch to read (OE de-asserted)
+        @(negedge clk);
+        ctrl_dq_oe  = {DQS_WIDTH{1'b0}};
+        ctrl_dqs_oe = {DQS_WIDTH{1'b0}};
+        ddr4_dq_in  = 72'hAABBCCDDEEFF001122;
+        @(posedge clk); @(posedge clk); #1;
+        if (!phy_dqs_valid)
+            $fatal(1, "T7B FAIL: phy_dqs_valid should be 1 after OE de-assert");
+        if (phy_dq_in !== 72'hAABBCCDDEEFF001122)
+            $fatal(1, "T7B FAIL: phy_dq_in mismatch: %h", phy_dq_in);
+        // Phase C: switch back to write OE
+        @(negedge clk);
+        ctrl_dq_oe  = {DQS_WIDTH{1'b1}};
+        ctrl_dqs_oe = {DQS_WIDTH{1'b1}};
+        ctrl_dq_out = 72'h5A5A_5A5A_5A5A_5A5A_5A;
+        @(posedge clk); @(posedge clk); #1;
+        if (ddr4_dq_out[7:0] !== ctrl_dq_out[7:0])
+            $fatal(1, "T7C FAIL: dq_out after OE re-assert: %h", ddr4_dq_out[7:0]);
+        $display("  T7: DQ OE transitions (write→read→write) OK");
+        pass_cnt = pass_cnt + 1;
+        wait_clk(3);
+
+        // -------------------------------------------------------
+        // Test 8: DQS preamble and postamble
+        //   Preamble : ctrl_dqs_oe transitions 0→1 (start of write burst)
+        //   Postamble: ctrl_dqs_oe transitions 1→0 (end of write burst)
+        // -------------------------------------------------------
+        $display("Test 8: DQS preamble and postamble");
+        // Ensure starting condition: OE=0 (read/idle)
+        @(negedge clk);
+        ctrl_dqs_oe = {DQS_WIDTH{1'b0}};
+        ctrl_dq_oe  = {DQS_WIDTH{1'b0}};
+        wait_clk(2);
+        // Preamble: assert OE (write burst begins)
+        @(negedge clk);
+        ctrl_dqs_oe = {DQS_WIDTH{1'b1}};
+        ctrl_dq_oe  = {DQS_WIDTH{1'b1}};
+        @(posedge clk); @(posedge clk); #1;
+        // DQS_t should follow clk when OE asserted
+        if (ddr4_dqs_t !== {DQS_WIDTH{clk}})
+            $fatal(1, "T8 FAIL: dqs_t should track clk during write, got %b vs clk=%b", ddr4_dqs_t[0], clk);
+        $display("  T8: DQS preamble OK (dqs_t tracks clk=%b)", clk);
+        // Postamble: de-assert OE (write burst ends)
+        @(negedge clk);
+        ctrl_dqs_oe = {DQS_WIDTH{1'b0}};
+        ctrl_dq_oe  = {DQS_WIDTH{1'b0}};
+        @(posedge clk); @(posedge clk); #1;
+        // DQS should be tri-stated; phy_dqs_valid should become 1
+        if (!phy_dqs_valid)
+            $fatal(1, "T8 FAIL: phy_dqs_valid should be 1 after postamble (OE=0)");
+        $display("  T8: DQS postamble OK (phy_dqs_valid=%b)", phy_dqs_valid);
+        pass_cnt = pass_cnt + 1;
+        wait_clk(3);
+
+        // -------------------------------------------------------
+        // Test 9: CKE assert and deassert
+        // -------------------------------------------------------
+        $display("Test 9: CKE assert and deassert");
+        @(negedge clk); ctrl_cke = {NUM_RANKS{1'b1}};
+        @(posedge clk); @(posedge clk); #1;
+        if (ddr4_cke !== {NUM_RANKS{1'b1}})
+            $fatal(1, "T9 FAIL: ddr4_cke should be 1, got %b", ddr4_cke);
+        $display("  T9a: CKE asserted OK (ddr4_cke=%b)", ddr4_cke);
+        @(negedge clk); ctrl_cke = {NUM_RANKS{1'b0}};
+        @(posedge clk); @(posedge clk); #1;
+        if (ddr4_cke !== {NUM_RANKS{1'b0}})
+            $fatal(1, "T9 FAIL: ddr4_cke should be 0, got %b", ddr4_cke);
+        $display("  T9b: CKE deasserted OK (ddr4_cke=%b)", ddr4_cke);
+        pass_cnt = pass_cnt + 1;
+        wait_clk(3);
+
+        // -------------------------------------------------------
+        // Test 10: ODT control
+        // -------------------------------------------------------
+        $display("Test 10: ODT control");
+        @(negedge clk); ctrl_odt = {NUM_RANKS{1'b1}};
+        @(posedge clk); @(posedge clk); #1;
+        if (ddr4_odt !== {NUM_RANKS{1'b1}})
+            $fatal(1, "T10 FAIL: ddr4_odt should be 1, got %b", ddr4_odt);
+        $display("  T10a: ODT asserted OK (ddr4_odt=%b)", ddr4_odt);
+        @(negedge clk); ctrl_odt = {NUM_RANKS{1'b0}};
+        @(posedge clk); @(posedge clk); #1;
+        if (ddr4_odt !== {NUM_RANKS{1'b0}})
+            $fatal(1, "T10 FAIL: ddr4_odt should be 0, got %b", ddr4_odt);
+        $display("  T10b: ODT deasserted OK (ddr4_odt=%b)", ddr4_odt);
+        pass_cnt = pass_cnt + 1;
+        wait_clk(3);
+
         $display("=== RESULTS: %0d passed, %0d failed ===", pass_cnt, fail_cnt);
         if (fail_cnt == 0)
             $display("PASS: ddr4_phy_iface all tests passed");

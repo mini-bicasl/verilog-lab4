@@ -8,6 +8,14 @@ Test 3: 2-beat burst WRITE -> two cmd_valid pulses
   T3: saw 2 cmd_valid pulses for 2-beat burst
 Test 4: cmd_ready back-pressure
   T4: cmd_valid asserted after cmd_ready released
-=== RESULTS: 4 passed, 0 failed ===
+Test 5: Read-only traffic — two consecutive single-beat reads
+  T5: Both read-only reads returned correct data (2 reads)
+Test 6: Mixed traffic — write followed immediately by read
+  T6: Mixed traffic OK — WRITE cmd and READ cmd both observed
+Test 7: Narrow burst write (awsize=1 → 2-byte strobe)
+  T7: Narrow burst write completed with BRESP=OKAY
+Test 8: rready back-pressure — hold rready low then release
+  T8: rready back-pressure OK — rvalid held, data correct
+=== RESULTS: 8 passed, 0 failed ===
 PASS: ddr4_host_iface all tests passed
-tb/ddr4_host_iface_tb.v:398: $finish called at 615000 (1ps)
+tb/ddr4_host_iface_tb.v:662: $finish called at 1255000 (1ps)

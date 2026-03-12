@@ -389,6 +389,270 @@ module ddr4_host_iface_tb;
         end
         wait_clk(5);
 
+        // -------------------------------------------------------
+        // Test 5: Read-only traffic — two back-to-back reads, no writes
+        // -------------------------------------------------------
+        $display("Test 5: Read-only traffic — two consecutive single-beat reads");
+        begin : t5
+            integer to5;
+            integer rd_cnt;
+            rd_cnt = 0;
+
+            // Issue read 1
+            @(negedge clk);
+            arid    = 4'h5;
+            araddr  = 32'h5000;
+            arlen   = 8'd0;
+            arsize  = 3'd3;
+            arburst = 2'd1;
+            arvalid = 1'b1;
+            rready  = 1'b1;
+            to5     = 0;
+            @(posedge clk);
+            while (!arready) begin @(posedge clk); to5=to5+1; if(to5>50) $fatal(1,"T5 ar1 timeout"); end
+            @(negedge clk); arvalid = 1'b0;
+            // Feed rdata for read 1
+            to5 = 0;
+            @(posedge clk);
+            while (!cmd_valid) begin @(posedge clk); to5=to5+1; if(to5>30) $fatal(1,"T5 cmd_valid r1 timeout"); end
+            repeat(2) @(posedge clk);
+            @(negedge clk);
+            rdata_valid_in = 1'b1;
+            rdata_in       = 64'h1111_2222_3333_4444;
+            rdata_id_in    = 4'h5;
+            rdata_err_in   = 1'b0;
+            @(posedge clk);
+            @(negedge clk); rdata_valid_in = 1'b0;
+            // Wait for rvalid
+            to5 = 0;
+            @(posedge clk);
+            while (!rvalid) begin @(posedge clk); to5=to5+1; if(to5>30) $fatal(1,"T5 rvalid1 timeout"); end
+            if (rdata !== 64'h1111_2222_3333_4444)
+                $fatal(1, "T5 FAIL: rdata1 mismatch got=%h", rdata);
+            rd_cnt = rd_cnt + 1;
+            wait_clk(3);
+
+            // Issue read 2
+            @(negedge clk);
+            arid    = 4'h6;
+            araddr  = 32'h6000;
+            arvalid = 1'b1;
+            rready  = 1'b1;
+            to5     = 0;
+            @(posedge clk);
+            while (!arready) begin @(posedge clk); to5=to5+1; if(to5>50) $fatal(1,"T5 ar2 timeout"); end
+            @(negedge clk); arvalid = 1'b0;
+            // Feed rdata for read 2
+            to5 = 0;
+            @(posedge clk);
+            while (!cmd_valid) begin @(posedge clk); to5=to5+1; if(to5>30) $fatal(1,"T5 cmd_valid r2 timeout"); end
+            repeat(2) @(posedge clk);
+            @(negedge clk);
+            rdata_valid_in = 1'b1;
+            rdata_in       = 64'h5555_6666_7777_8888;
+            rdata_id_in    = 4'h6;
+            rdata_err_in   = 1'b0;
+            @(posedge clk);
+            @(negedge clk); rdata_valid_in = 1'b0;
+            // Wait for rvalid
+            to5 = 0;
+            @(posedge clk);
+            while (!rvalid) begin @(posedge clk); to5=to5+1; if(to5>30) $fatal(1,"T5 rvalid2 timeout"); end
+            if (rdata !== 64'h5555_6666_7777_8888)
+                $fatal(1, "T5 FAIL: rdata2 mismatch got=%h", rdata);
+            rd_cnt = rd_cnt + 1;
+
+            if (rd_cnt == 2) begin
+                $display("  T5: Both read-only reads returned correct data (%0d reads)", rd_cnt);
+                pass_cnt = pass_cnt + 1;
+            end else
+                $fatal(1, "T5 FAIL: expected 2 reads, got %0d", rd_cnt);
+        end
+        wait_clk(5);
+
+        // -------------------------------------------------------
+        // Test 6: Mixed traffic — write then read, both cmds observed
+        // Strategy: start the cmd_valid edge monitor as soon as write
+        // data handshake completes (before AR), so the WRITE cmd pulse
+        // (which fires ~2 cycles later) is captured.
+        // -------------------------------------------------------
+        $display("Test 6: Mixed traffic — write followed immediately by read");
+        begin : t6
+            integer to6;
+            integer got_wr_cmd;
+            integer got_rd_cmd;
+            got_wr_cmd = 0;
+            got_rd_cmd = 0;
+
+            // AW handshake
+            @(negedge clk);
+            awid    = 4'h7;
+            awaddr  = 32'h7000;
+            awlen   = 8'd0;
+            awsize  = 3'd3;
+            awburst = 2'd1;
+            awvalid = 1'b1;
+            bready  = 1'b1;
+            wdata   = 64'hAAAA_BBBB_CCCC_DDDD;
+            wstrb   = 8'hFF;
+            wlast   = 1'b1;
+            wvalid  = 1'b1;
+            to6     = 0;
+            @(posedge clk);
+            while (!awready) begin @(posedge clk); to6=to6+1; if(to6>50) $fatal(1,"T6 aw timeout"); end
+            @(negedge clk); awvalid = 1'b0;
+            // W handshake
+            to6 = 0;
+            @(posedge clk);
+            while (!wready) begin @(posedge clk); to6=to6+1; if(to6>50) $fatal(1,"T6 wr timeout"); end
+            @(negedge clk); wvalid = 1'b0;
+            // Fork: monitor cmd_valid edges while issuing the read AR
+            // cmd_valid for WRITE fires ~2 cycles after wready handshake,
+            // so the monitor must start HERE (before AR) to catch it.
+            fork
+                begin : t6_monitor
+                    integer mon_to;
+                    // Catch WRITE cmd pulse (edge-triggered, reliable)
+                    @(posedge cmd_valid);
+                    if (cmd_type === 2'b01) got_wr_cmd = 1;
+                    // Catch READ cmd pulse
+                    mon_to = 0;
+                    @(posedge cmd_valid);
+                    if (cmd_type === 2'b00) got_rd_cmd = 1;
+                    // Feed read data so read FSM can complete
+                    repeat(2) @(posedge clk);
+                    @(negedge clk);
+                    rdata_valid_in = 1'b1;
+                    rdata_in       = 64'hEEEE_FFFF_0000_1111;
+                    rdata_id_in    = 4'h8;
+                    rdata_err_in   = 1'b0;
+                    @(posedge clk);
+                    @(negedge clk); rdata_valid_in = 1'b0;
+                    // Wait for rvalid (rready=1 so it may pulse briefly)
+                    mon_to = 0;
+                    @(posedge clk);
+                    while (!rvalid) begin
+                        @(posedge clk); mon_to=mon_to+1;
+                        if (mon_to>20) $fatal(1,"T6 FAIL: rvalid timeout");
+                    end
+                end
+                begin : t6_read
+                    @(negedge clk);
+                    arid    = 4'h8;
+                    araddr  = 32'h8000;
+                    arlen   = 8'd0;
+                    arsize  = 3'd3;
+                    arburst = 2'd1;
+                    arvalid = 1'b1;
+                    rready  = 1'b1;
+                    to6     = 0;
+                    @(posedge clk);
+                    while (!arready) begin @(posedge clk); to6=to6+1; if(to6>50) $fatal(1,"T6 ar timeout"); end
+                    @(negedge clk); arvalid = 1'b0;
+                end
+            join
+
+            if (got_wr_cmd && got_rd_cmd) begin
+                $display("  T6: Mixed traffic OK — WRITE cmd and READ cmd both observed");
+                pass_cnt = pass_cnt + 1;
+            end else
+                $fatal(1, "T6 FAIL: wr_cmd=%0d rd_cmd=%0d", got_wr_cmd, got_rd_cmd);
+        end
+        wait_clk(5);
+
+        // -------------------------------------------------------
+        // Test 7: Narrow burst write (awsize=1, 2-byte lane)
+        // -------------------------------------------------------
+        $display("Test 7: Narrow burst write (awsize=1 → 2-byte strobe)");
+        begin : t7
+            integer to7;
+            @(negedge clk);
+            awid    = 4'h9;
+            awaddr  = 32'h9002;   // byte-aligned to 2-byte boundary
+            awlen   = 8'd0;
+            awsize  = 3'd1;       // narrow: 2 bytes per beat
+            awburst = 2'd1;
+            awvalid = 1'b1;
+            wdata   = 64'hDEAD_BEEF_DEAD_BEEF;
+            wstrb   = 8'h0C;      // bytes [3:2] active for awsize=1 at offset 2
+            wlast   = 1'b1;
+            wvalid  = 1'b1;
+            bready  = 1'b1;
+            to7     = 0;
+            @(posedge clk);
+            while (!awready) begin @(posedge clk); to7=to7+1; if(to7>50) $fatal(1,"T7 aw timeout"); end
+            @(negedge clk); awvalid = 1'b0;
+            to7 = 0;
+            @(posedge clk);
+            while (!wready) begin @(posedge clk); to7=to7+1; if(to7>50) $fatal(1,"T7 wr timeout"); end
+            @(negedge clk); wvalid = 1'b0;
+            // Should generate a cmd_valid for WRITE
+            to7 = 0;
+            @(posedge clk);
+            while (!cmd_valid) begin @(posedge clk); to7=to7+1; if(to7>30) $fatal(1,"T7 cmd_valid timeout"); end
+            if (cmd_type !== 2'b01)
+                $fatal(1, "T7 FAIL: expected WRITE cmd_type, got %b", cmd_type);
+            to7 = 0;
+            @(posedge clk);
+            while (!bvalid) begin @(posedge clk); to7=to7+1; if(to7>50) $fatal(1,"T7 bvalid timeout"); end
+            if (bresp !== 2'b00)
+                $fatal(1, "T7 FAIL: bresp=%b expected OKAY", bresp);
+            $display("  T7: Narrow burst write completed with BRESP=OKAY");
+            pass_cnt = pass_cnt + 1;
+        end
+        wait_clk(5);
+
+        // -------------------------------------------------------
+        // Test 8: rready back-pressure on read data return
+        // -------------------------------------------------------
+        $display("Test 8: rready back-pressure — hold rready low then release");
+        begin : t8
+            integer to8;
+            rready = 1'b0;   // back-pressure on read return
+
+            @(negedge clk);
+            arid    = 4'hA;
+            araddr  = 32'hA000;
+            arlen   = 8'd0;
+            arsize  = 3'd3;
+            arburst = 2'd1;
+            arvalid = 1'b1;
+            to8     = 0;
+            @(posedge clk);
+            while (!arready) begin @(posedge clk); to8=to8+1; if(to8>50) $fatal(1,"T8 ar timeout"); end
+            @(negedge clk); arvalid = 1'b0;
+
+            // Wait for cmd_valid (READ), then feed rdata
+            to8 = 0;
+            @(posedge clk);
+            while (!cmd_valid) begin @(posedge clk); to8=to8+1; if(to8>30) $fatal(1,"T8 cmd_valid timeout"); end
+            repeat(2) @(posedge clk);
+            @(negedge clk);
+            rdata_valid_in = 1'b1;
+            rdata_in       = 64'hBEEF_CAFE_FEED_FACE;
+            rdata_id_in    = 4'hA;
+            rdata_err_in   = 1'b0;
+            @(posedge clk);
+            @(negedge clk); rdata_valid_in = 1'b0;
+
+            // rvalid should be high but rdata held until rready asserted
+            to8 = 0;
+            @(posedge clk);
+            while (!rvalid) begin @(posedge clk); to8=to8+1; if(to8>30) $fatal(1,"T8 rvalid timeout"); end
+            // Hold rready=0 for 3 more cycles — rvalid must stay asserted
+            repeat(3) @(posedge clk);
+            if (!rvalid)
+                $fatal(1, "T8 FAIL: rvalid dropped before rready asserted");
+            // Now release rready
+            @(negedge clk); rready = 1'b1;
+            @(posedge clk);
+            if (rdata !== 64'hBEEF_CAFE_FEED_FACE)
+                $fatal(1, "T8 FAIL: rdata mismatch got=%h", rdata);
+            $display("  T8: rready back-pressure OK — rvalid held, data correct");
+            pass_cnt = pass_cnt + 1;
+        end
+        wait_clk(5);
+
         // Report results
         $display("=== RESULTS: %0d passed, %0d failed ===", pass_cnt, fail_cnt);
         if (fail_cnt == 0)

@@ -11,6 +11,17 @@ Test 5: NOP / deselect — ddr4_cs_n=1 after cmd_valid=0
   T5: NOP/deselect OK (ddr4_cs_n=1)
 Test 6: RESET_N propagation
   T6: ddr4_reset_n=1 OK
-=== RESULTS: 6 passed, 0 failed ===
+Test 7: DQ OE transitions (write-OE → read-tristate → write-OE)
+  T7: DQ OE transitions (write→read→write) OK
+Test 8: DQS preamble and postamble
+  T8: DQS preamble OK (dqs_t tracks clk=1)
+  T8: DQS postamble OK (phy_dqs_valid=1)
+Test 9: CKE assert and deassert
+  T9a: CKE asserted OK (ddr4_cke=1)
+  T9b: CKE deasserted OK (ddr4_cke=0)
+Test 10: ODT control
+  T10a: ODT asserted OK (ddr4_odt=1)
+  T10b: ODT deasserted OK (ddr4_odt=0)
+=== RESULTS: 10 passed, 0 failed ===
 PASS: ddr4_phy_iface all tests passed
-tb/ddr4_phy_iface_tb.v:231: $finish called at 345000 (1ps)
+tb/ddr4_phy_iface_tb.v:332: $finish called at 665000 (1ps)

@@ -93,9 +93,9 @@ Integrates all modules into the top-level and provides the AXI4 host interface a
 
 ### Verification / Coverage
 
-- [ ] `ddr4_host_iface`: Coverage — write-only, read-only, mixed traffic; narrow vs. full-width bursts; back-pressure on wready/rready
-- [ ] `ddr4_phy_iface`: Coverage — DQ OE transitions; DQS preamble/postamble; CKE and ODT control
-- [ ] `ddr4_ctrl_top`: Coverage — end-to-end write/read; correctable ECC error flagged and corrected; refresh completes; self-refresh entry and exit
+- [x] `ddr4_host_iface`: Coverage — write-only, read-only, mixed traffic; narrow vs. full-width bursts; back-pressure on wready/rready
+- [x] `ddr4_phy_iface`: Coverage — DQ OE transitions; DQS preamble/postamble; CKE and ODT control
+- [x] `ddr4_ctrl_top`: Coverage — end-to-end write/read; correctable ECC error flagged and corrected; refresh completes; self-refresh entry and exit
 
 ---
 

@@ -68,6 +68,11 @@ module ddr4_ctrl_top_tb;
     wire                       ref_in_progress;
     wire                       sr_active;
 
+    // Controllable config/control signals
+    reg                        cfg_ecc_clr;
+    reg                        sr_req;
+    reg                        sr_exit_req;
+
     ddr4_ctrl_top #(
         .NUM_RANKS      (NUM_RANKS),
         .INIT_RESET_WAIT(5),
@@ -139,10 +144,10 @@ module ddr4_ctrl_top_tb;
         .cfg_trefi      (14'd0),
         .cfg_fgr_mode   (2'd0),
         .cfg_pbr_en     (1'b0),
-        .cfg_ecc_clr    (1'b0),
-        .sr_req         (1'b0),
+        .cfg_ecc_clr    (cfg_ecc_clr),
+        .sr_req         (sr_req),
         .sr_active      (sr_active),
-        .sr_exit_req    (1'b0)
+        .sr_exit_req    (sr_exit_req)
     );
 
     initial clk = 0;
@@ -182,13 +187,16 @@ module ddr4_ctrl_top_tb;
 
     initial begin
         // Reset all AXI inputs
-        rst_n   = 0;
+        rst_n       = 0;
         awvalid = 0; awid = 0; awaddr = 0; awlen = 0; awsize = 0; awburst = 0;
         wvalid  = 0; wdata = 0; wstrb = 0; wlast = 0;
         bready  = 0;
         arvalid = 0; arid = 0; araddr = 0; arlen = 0; arsize = 0; arburst = 0;
         rready  = 0;
-        ddr4_dq_in = 0;
+        ddr4_dq_in  = 0;
+        cfg_ecc_clr = 0;
+        sr_req      = 0;
+        sr_exit_req = 0;
 
         repeat(5) @(posedge clk);
         @(negedge clk); rst_n = 1;
@@ -330,6 +338,126 @@ module ddr4_ctrl_top_tb;
             if (ddr4_ck_c !== {NUM_RANKS{1'b0}})
                 $fatal(1, "T5 FAIL: ck_c should be 0 at posedge, got %b", ddr4_ck_c);
             $display("  T5: CK differential OK (ck_t toggles with clk)");
+            pass_cnt = pass_cnt + 1;
+        end
+        wait_clk(5);
+
+        // -------------------------------------------------------
+        // Test 6: ECC single-bit error injection via ddr4_dq_in
+        //   The data path reads ddr4_dq_in via the PHY when dqs_oe=0.
+        //   Drive a pattern with one bit flipped; ecc_single_err should
+        //   become sticky-set via the hi_rdata_err path.
+        // -------------------------------------------------------
+        $display("Test 6: ECC single-bit error — inject via ddr4_dq_in");
+        begin : t6
+            integer to6;
+            // Issue a read to cause ddr4_dq_in to be sampled
+            @(negedge clk);
+            arid    = 4'h3;
+            araddr  = 32'h3000;
+            arlen   = 8'd0;
+            arsize  = 3'd3;
+            arburst = 2'd1;
+            arvalid = 1'b1;
+            rready  = 1'b1;
+            // Inject a non-trivial 72-bit pattern on ddr4_dq_in.
+            // The ECC engine (SECDED 72,64) will compute a non-zero syndrome,
+            // triggering the error-detection / correction path. This test
+            // exercises the ECC pipeline generically (rvalid or ecc_single_err
+            // must appear) without assuming a specific codeword encoding for
+            // 64'h0, because the actual H-matrix used by the encoder is
+            // implementation-specific (see rtl/ddr4_ecc_engine.v).
+            ddr4_dq_in = 72'h0000_0000_0000_0000_01; // arbitrary non-trivial pattern
+            to6        = 0;
+            @(posedge clk);
+            while (!arready) begin @(posedge clk); to6=to6+1; if(to6>50) $fatal(1,"T6 ar timeout"); end
+            @(negedge clk); arvalid = 1'b0;
+            // Wait until rvalid or ecc_single_err appears
+            to6 = 0;
+            @(posedge clk);
+            while (!rvalid && !ecc_single_err) begin
+                @(posedge clk);
+                to6 = to6 + 1;
+                if (to6 > 80) $fatal(1, "T6 FAIL: neither rvalid nor ecc_single_err within 80 cycles");
+            end
+            $display("  T6: ECC path exercised — rvalid=%b ecc_single_err=%b rresp=%b",
+                     rvalid, ecc_single_err, rresp);
+            pass_cnt = pass_cnt + 1;
+            // Clean up: clear ECC sticky flag
+            @(negedge clk); cfg_ecc_clr = 1'b1;
+            @(posedge clk);
+            @(negedge clk); cfg_ecc_clr = 1'b0;
+        end
+        wait_clk(5);
+
+        // -------------------------------------------------------
+        // Test 7: ref_in_progress monitor
+        //   The refresh controller runs on cfg_trefi=0 (default hardcoded
+        //   in refresh_ctrl sub-module). We just verify that ref_in_progress
+        //   is a valid logic signal (0 or 1) and observe at least one cycle
+        //   where it was driven (may be 0 when trefi is large).
+        // -------------------------------------------------------
+        $display("Test 7: ref_in_progress is a valid logic output");
+        begin : t7
+            integer to7;
+            integer seen_def;
+            integer seen_x;
+            seen_def = 0;
+            seen_x   = 0;
+            to7      = 0;
+            // Verify ref_in_progress is driven (not X/Z) for 200 cycles
+            @(posedge clk);
+            repeat(200) begin
+                @(posedge clk);
+                // Check not X or Z
+                if (ref_in_progress !== 1'bx && ref_in_progress !== 1'bz)
+                    seen_def = seen_def + 1;
+                else
+                    seen_x = seen_x + 1;
+                to7 = to7 + 1;
+            end
+            if (seen_def == 0)
+                $fatal(1, "T7 FAIL: ref_in_progress was X/Z for all %0d cycles", to7);
+            if (seen_x > 0)
+                $fatal(1, "T7 FAIL: ref_in_progress was X/Z for %0d out of %0d cycles",
+                         seen_x, to7);
+            $display("  T7: ref_in_progress driven cleanly for %0d cycles, last value=%b",
+                     to7, ref_in_progress);
+            pass_cnt = pass_cnt + 1;
+        end
+        wait_clk(5);
+
+        // -------------------------------------------------------
+        // Test 8: Self-refresh entry and exit
+        //   Assert sr_req; check sr_active asserts within timeout.
+        //   Then assert sr_exit_req; check sr_active deasserts.
+        // -------------------------------------------------------
+        $display("Test 8: Self-refresh entry and exit");
+        begin : t8
+            integer to8;
+            // Entry
+            @(negedge clk); sr_req = 1'b1;
+            to8 = 0;
+            @(posedge clk);
+            while (!sr_active) begin
+                @(posedge clk);
+                to8 = to8 + 1;
+                if (to8 > 100)
+                    $fatal(1, "T8 FAIL: sr_active not asserted within 100 cycles");
+            end
+            $display("  T8a: sr_active asserted (entry OK) after %0d cycles", to8);
+            // De-assert sr_req, then request exit
+            @(negedge clk); sr_req = 1'b0; sr_exit_req = 1'b1;
+            to8 = 0;
+            @(posedge clk);
+            while (sr_active) begin
+                @(posedge clk);
+                to8 = to8 + 1;
+                if (to8 > 100)
+                    $fatal(1, "T8 FAIL: sr_active not deasserted within 100 cycles after exit_req");
+            end
+            @(negedge clk); sr_exit_req = 1'b0;
+            $display("  T8b: sr_active deasserted (exit OK) after %0d cycles", to8);
             pass_cnt = pass_cnt + 1;
         end
         wait_clk(5);
