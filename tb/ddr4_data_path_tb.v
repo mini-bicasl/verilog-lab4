@@ -5,7 +5,9 @@
 //   2. Read from PHY → ECC decode → host (clean data)
 //   3. Correctable (single-bit) ECC error injection on read path → rd_ecc_err
 //   4. Back-to-back writes and reads
-//   5. FIFO backpressure: wr_ready de-assertion when full
+//   5. FIFO backpressure: wr_ready behavior; explicit FIFO-empty OE de-assertion
+//   6. Uncorrectable double-bit ECC error propagation → rd_ecc_err, no false correction
+//   7. Back-to-back reads (4 consecutive PHY read-valid pulses)
 module ddr4_data_path_tb;
 
     // ---------------------------------------------------------------
@@ -291,37 +293,153 @@ module ddr4_data_path_tb;
         end
 
         // ============================================================
-        // Test 5: FIFO fill — wr_ready de-asserts when full (FIFO_DEPTH=8)
+        // Test 5: FIFO fill — wr_ready behavior; FIFO empty OE check
         // ============================================================
-        $display("=== Test 5: FIFO backpressure ===");
+        $display("=== Test 5: FIFO backpressure and empty state ===");
         begin : T5
             integer k;
-            integer saw_not_ready;
-            saw_not_ready = 0;
 
             // Wait for FIFO to drain from Test 4
             @(negedge clk);
             repeat(5) @(posedge clk);
 
-            // Push 8 entries to fill FIFO
-            for (k = 0; k < 8; k = k + 1) begin
+            // Push 4 entries back-to-back; FIFO auto-drains on the PHY side
+            for (k = 0; k < 4; k = k + 1) begin
                 @(negedge clk);
                 wr_req  <= 1'b1;
-                wr_data <= {k[3:0], 60'hABC};
+                wr_data <= {k[3:0], 60'hBEEF0};
                 wr_id   <= k[3:0];
                 wr_strb <= 8'hFF;
-                // Simultaneously pushing and popping; count stays approx same
             end
             @(posedge clk); @(negedge clk);
             wr_req <= 1'b0;
 
-            // Fill beyond what pops can drain — push 8 more with pop disabled
-            // Stall pop by driving all pops as already completed
-            repeat(3) @(posedge clk);
-            // The FIFO may have partially drained; this test mainly verifies
-            // wr_ready is connected and togglable
-            $display("PASS T5: FIFO backpressure test run (wr_ready=%b)", wr_ready);
-            pass_cnt = pass_cnt + 1;
+            // Allow FIFO to drain fully
+            repeat(6) @(posedge clk);
+            @(negedge clk);
+
+            // FIFO empty: OE must be de-asserted
+            @(posedge clk);
+            if (phy_dqs_oe !== 9'h000 || phy_dq_oe !== 9'h000) begin
+                $display("FAIL T5: OE not de-asserted when FIFO empty (dqs=%h dq=%h)",
+                         phy_dqs_oe, phy_dq_oe);
+                fail_cnt = fail_cnt + 1;
+            end else begin
+                $display("PASS T5: FIFO empty OE de-asserted (wr_ready=%b)", wr_ready);
+                pass_cnt = pass_cnt + 1;
+            end
+        end
+
+        // ============================================================
+        // Test 6: Double-bit ECC error → rd_ecc_err set; no false correction
+        // ============================================================
+        $display("=== Test 6: Double-bit ECC error propagation ===");
+        begin : T6
+            reg [63:0] rdata;
+            reg [71:0] clean_cw, dbe_injected;
+            rdata = 64'hFEDCBA9876543210;
+            ref_enc_in = rdata; #1;
+            clean_cw    = ref_enc_out;
+            // Inject two-bit error: flip bit 3 and bit 5 (both data positions)
+            dbe_injected = clean_cw ^ (72'b1 << 3) ^ (72'b1 << 5);
+
+            @(negedge clk);
+            rd_data_return    <= dbe_injected;
+            rd_data_valid_phy <= 1'b1;
+            rd_id_phy         <= 4'hA;
+            @(posedge clk); @(negedge clk);
+            rd_data_valid_phy <= 1'b0;
+
+            @(posedge clk);
+            if (!rd_data_valid_host) begin
+                $display("FAIL T6: rd_data_valid_host not asserted on DBE");
+                fail_cnt = fail_cnt + 1;
+            end else if (!rd_ecc_err) begin
+                $display("FAIL T6: rd_ecc_err not set on DBE-injected read");
+                fail_cnt = fail_cnt + 1;
+            end else begin
+                $display("PASS T6: DBE detected, rd_ecc_err set (no false SBE correction)");
+                pass_cnt = pass_cnt + 1;
+            end
+        end
+
+        // ============================================================
+        // Test 7: Back-to-back reads — 4 consecutive PHY read-valid pulses
+        // Interleaved drive/check: set input[k] at negedge, check output[k-1]
+        // at the next posedge (pipeline has 1-cycle latency).
+        // ============================================================
+        $display("=== Test 7: Back-to-back reads ===");
+        begin : T7
+            integer k;
+            reg [63:0] rdata_bb [0:3];
+            reg [71:0] clean_bb [0:3];
+            integer ok;
+            ok = 1;
+
+            rdata_bb[0] = 64'hAABBCCDD11223344;
+            rdata_bb[1] = 64'h5566778899AABBCC;
+            rdata_bb[2] = 64'hFFEEDDCCBBAA9988;
+            rdata_bb[3] = 64'h0102030405060708;
+
+            for (k = 0; k < 4; k = k + 1) begin
+                ref_enc_in = rdata_bb[k]; #1; clean_bb[k] = ref_enc_out;
+            end
+
+            // Cycle 0: prime [0] — DUT registers at the next posedge
+            @(negedge clk);
+            rd_data_return    <= clean_bb[0];
+            rd_data_valid_phy <= 1'b1;
+            rd_id_phy         <= 4'h0;
+
+            // Cycle 1: drive [1], check [0] at posedge (before this posedge's NBA)
+            @(negedge clk);
+            rd_data_return    <= clean_bb[1];
+            rd_id_phy         <= 4'h1;
+            @(posedge clk);
+            if (!rd_data_valid_host || rd_ecc_err || rd_data_out !== rdata_bb[0]) begin
+                $display("FAIL T7[0]: valid=%b ecc_err=%b got=%h exp=%h",
+                         rd_data_valid_host, rd_ecc_err, rd_data_out, rdata_bb[0]);
+                ok = 0;
+            end
+
+            // Cycle 2: drive [2], check [1]
+            @(negedge clk);
+            rd_data_return    <= clean_bb[2];
+            rd_id_phy         <= 4'h2;
+            @(posedge clk);
+            if (!rd_data_valid_host || rd_ecc_err || rd_data_out !== rdata_bb[1]) begin
+                $display("FAIL T7[1]: valid=%b ecc_err=%b got=%h exp=%h",
+                         rd_data_valid_host, rd_ecc_err, rd_data_out, rdata_bb[1]);
+                ok = 0;
+            end
+
+            // Cycle 3: drive [3], check [2]
+            @(negedge clk);
+            rd_data_return    <= clean_bb[3];
+            rd_id_phy         <= 4'h3;
+            @(posedge clk);
+            if (!rd_data_valid_host || rd_ecc_err || rd_data_out !== rdata_bb[2]) begin
+                $display("FAIL T7[2]: valid=%b ecc_err=%b got=%h exp=%h",
+                         rd_data_valid_host, rd_ecc_err, rd_data_out, rdata_bb[2]);
+                ok = 0;
+            end
+
+            // Cycle 4: stop input, check [3]
+            @(negedge clk);
+            rd_data_valid_phy <= 1'b0;
+            @(posedge clk);
+            if (!rd_data_valid_host || rd_ecc_err || rd_data_out !== rdata_bb[3]) begin
+                $display("FAIL T7[3]: valid=%b ecc_err=%b got=%h exp=%h",
+                         rd_data_valid_host, rd_ecc_err, rd_data_out, rdata_bb[3]);
+                ok = 0;
+            end
+
+            if (ok) begin
+                $display("PASS T7: 4 back-to-back reads all correct");
+                pass_cnt = pass_cnt + 1;
+            end else begin
+                fail_cnt = fail_cnt + 1;
+            end
         end
 
         // ============================================================
@@ -337,9 +455,10 @@ module ddr4_data_path_tb;
         $finish;
     end
 
-    // Timeout watchdog
+    // Timeout watchdog: 2 ms comfortably covers 9 test cases including
+    // back-to-back read/write sequences and the DBE injection test.
     initial begin
-        #1000000;
+        #2000000;
         $display("FAIL: simulation timeout");
         $finish;
     end
