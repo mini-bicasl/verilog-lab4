@@ -1,0 +1,12 @@
+{
+  "module": "ddr4_refresh_ctrl",
+  "rtl_done": true,
+  "tb_done": true,
+  "doc_done": true,
+  "simulation_passed": true,
+  "coverage_completed": false,
+  "coverage_percentage": 0,
+  "plan_item_completed": true,
+  "error_summary": "",
+  "sim_log": "results/phase-core-ctrl/ddr4_refresh_ctrl_sim.log"
+}

@@ -1,0 +1,9 @@
+VCD info: dumpfile results/phase-core-ctrl/ddr4_timing_engine.vcd opened for output.
+Test 1: ACT -> tRCD
+tRCD recovered correctly
+Test 2: PRE -> tRP
+tRP recovered correctly
+Test 3: REF -> tRFC
+tRFC recovered correctly
+SIMULATION PASSED
+tb/ddr4_timing_engine_tb.v:122: $finish called at 645000 (1ps)

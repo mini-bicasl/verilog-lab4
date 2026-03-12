@@ -1,0 +1,500 @@
+$date
+	Thu Mar 12 10:14:44 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module ddr4_init_fsm_tb $end
+$var wire 3 ! mr_select [2:0] $end
+$var wire 1 " init_done $end
+$var wire 2 # dram_rank [1:0] $end
+$var wire 1 $ dram_cmd_valid $end
+$var wire 3 % dram_cmd_type [2:0] $end
+$var wire 2 & dram_bg [1:0] $end
+$var wire 2 ' dram_ba [1:0] $end
+$var wire 17 ( dram_a [16:0] $end
+$var reg 1 ) clk $end
+$var reg 17 * mr_data [16:0] $end
+$var reg 1 + rst_n $end
+$var reg 1 , saw_mrs $end
+$var reg 1 - start $end
+$var integer 32 . cycle_count [31:0] $end
+$scope module dut $end
+$var wire 1 ) clk $end
+$var wire 17 / mr_data [16:0] $end
+$var wire 1 0 mrs_state $end
+$var wire 1 + rst_n $end
+$var wire 1 - start $end
+$var parameter 3 1 CMD_MRS $end
+$var parameter 3 2 CMD_NOP $end
+$var parameter 3 3 CMD_ZQCL $end
+$var parameter 32 4 RESET_WAIT $end
+$var parameter 4 5 S_CKE_ASSERT $end
+$var parameter 4 6 S_IDLE $end
+$var parameter 4 7 S_INIT_DONE $end
+$var parameter 4 8 S_MRS_MR0 $end
+$var parameter 4 9 S_MRS_MR1 $end
+$var parameter 4 : S_MRS_MR2 $end
+$var parameter 4 ; S_MRS_MR3 $end
+$var parameter 4 < S_MRS_MR4 $end
+$var parameter 4 = S_MRS_MR5 $end
+$var parameter 4 > S_MRS_MR6 $end
+$var parameter 4 ? S_RESET_ASSERT $end
+$var parameter 4 @ S_RESET_DEASSERT $end
+$var parameter 4 A S_ZQCL $end
+$var parameter 32 B ZQCL_WAIT_CYCLES $end
+$var reg 17 C dram_a [16:0] $end
+$var reg 2 D dram_ba [1:0] $end
+$var reg 2 E dram_bg [1:0] $end
+$var reg 3 F dram_cmd_type [2:0] $end
+$var reg 1 $ dram_cmd_valid $end
+$var reg 2 G dram_rank [1:0] $end
+$var reg 1 " init_done $end
+$var reg 3 H mr_select [2:0] $end
+$var reg 4 I state [3:0] $end
+$var reg 10 J wait_cnt [9:0] $end
+$scope function state_to_mr $end
+$var reg 4 K s [3:0] $end
+$upscope $end
+$upscope $end
+$scope begin wait_done $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+b1010 B
+b1011 A
+b10 @
+b1 ?
+b101 >
+b110 =
+b111 <
+b100 ;
+b1000 :
+b1001 9
+b1010 8
+b1100 7
+b0 6
+b11 5
+b1010 4
+b111 3
+b0 2
+b1 1
+$end
+#0
+$dumpvars
+bx K
+bx J
+bx I
+b0 H
+b0 G
+b0 F
+b0 E
+b0 D
+b0 C
+x0
+b11010010110100101 /
+b0 .
+0-
+0,
+0+
+b11010010110100101 *
+0)
+b0 (
+b0 '
+b0 &
+b0 %
+0$
+b0 #
+0"
+b0 !
+$end
+#5000
+00
+b0 J
+b0 I
+1)
+#10000
+0)
+#15000
+1)
+#20000
+0)
+#25000
+1)
+#30000
+0)
+#35000
+1)
+#40000
+0)
+#45000
+1)
+#50000
+1+
+0)
+#55000
+1)
+#60000
+1-
+0)
+#65000
+b1001 J
+b1 I
+1)
+#70000
+0-
+0)
+#75000
+b1000 J
+b1 .
+1)
+#80000
+0)
+#85000
+b111 J
+b10 .
+1)
+#90000
+0)
+#95000
+b110 J
+b11 .
+1)
+#100000
+0)
+#105000
+b101 J
+b100 .
+1)
+#110000
+0)
+#115000
+b100 J
+b101 .
+1)
+#120000
+0)
+#125000
+b11 J
+b110 .
+1)
+#130000
+0)
+#135000
+b10 J
+b111 .
+1)
+#140000
+0)
+#145000
+b1 J
+b1000 .
+1)
+#150000
+0)
+#155000
+b0 J
+b1001 .
+1)
+#160000
+0)
+#165000
+b10 I
+b1010 .
+1)
+#170000
+0)
+#175000
+b1001 J
+b11 I
+b1011 .
+1)
+#180000
+0)
+#185000
+b1000 J
+b1100 .
+1)
+#190000
+0)
+#195000
+b111 J
+b1101 .
+1)
+#200000
+0)
+#205000
+b110 J
+b1110 .
+1)
+#210000
+0)
+#215000
+b101 J
+b1111 .
+1)
+#220000
+0)
+#225000
+b100 J
+b10000 .
+1)
+#230000
+0)
+#235000
+b11 J
+b10001 .
+1)
+#240000
+0)
+#245000
+b10 J
+b10010 .
+1)
+#250000
+0)
+#255000
+b1 J
+b10011 .
+1)
+#260000
+0)
+#265000
+b0 J
+b10100 .
+1)
+#270000
+0)
+#275000
+10
+b11010010110100101 (
+b11010010110100101 C
+b11 '
+b11 D
+b11 !
+b11 H
+b100 K
+b1 %
+b1 F
+1$
+b100 I
+b10101 .
+1)
+#280000
+0)
+#285000
+b1 &
+b1 E
+b101 K
+b110 !
+b110 H
+b10 '
+b10 D
+b11010010110100101 (
+b11010010110100101 C
+b1 %
+b1 F
+1$
+b101 I
+1,
+b10110 .
+1)
+#290000
+0)
+#295000
+b110 K
+b101 !
+b101 H
+b1 '
+b1 D
+b1 &
+b1 E
+b11010010110100101 (
+b11010010110100101 C
+b1 %
+b1 F
+1$
+10
+b110 I
+b10111 .
+1)
+#300000
+0)
+#305000
+10
+b111 K
+b100 !
+b100 H
+b0 '
+b0 D
+b1 &
+b1 E
+b11010010110100101 (
+b11010010110100101 C
+b1 %
+b1 F
+1$
+b111 I
+b11000 .
+1)
+#310000
+0)
+#315000
+10
+b10 '
+b10 D
+b1000 K
+b10 !
+b10 H
+b0 &
+b0 E
+b11010010110100101 (
+b11010010110100101 C
+b1 %
+b1 F
+1$
+b1000 I
+b11001 .
+1)
+#320000
+0)
+#325000
+10
+b1001 K
+b1 !
+b1 H
+b1 '
+b1 D
+b11010010110100101 (
+b11010010110100101 C
+b1 %
+b1 F
+1$
+b1001 I
+b11010 .
+1)
+#330000
+0)
+#335000
+b1010 K
+b0 !
+b0 H
+b0 '
+b0 D
+b11010010110100101 (
+b11010010110100101 C
+b1 %
+b1 F
+1$
+b1010 I
+b11011 .
+1)
+#340000
+0)
+#345000
+00
+b0 (
+b0 C
+b111 %
+b111 F
+1$
+b1001 J
+b1011 I
+b11100 .
+1)
+#350000
+0)
+#355000
+b111 %
+b111 F
+0$
+b1000 J
+b11101 .
+1)
+#360000
+0)
+#365000
+b111 %
+b111 F
+b111 J
+b11110 .
+1)
+#370000
+0)
+#375000
+b111 %
+b111 F
+b110 J
+b11111 .
+1)
+#380000
+0)
+#385000
+b111 %
+b111 F
+b101 J
+b100000 .
+1)
+#390000
+0)
+#395000
+b111 %
+b111 F
+b100 J
+b100001 .
+1)
+#400000
+0)
+#405000
+b111 %
+b111 F
+b11 J
+b100010 .
+1)
+#410000
+0)
+#415000
+b111 %
+b111 F
+b10 J
+b100011 .
+1)
+#420000
+0)
+#425000
+b111 %
+b111 F
+b1 J
+b100100 .
+1)
+#430000
+0)
+#435000
+b111 %
+b111 F
+b0 J
+b100101 .
+1)
+#440000
+0)
+#445000
+1"
+b0 %
+b0 F
+b1100 I
+b100110 .
+1)
+#450000
+0)
+#455000
+b100111 .
+1)
+#460000
+0)
+#465000
+1)
