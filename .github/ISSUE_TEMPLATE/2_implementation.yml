@@ -1,0 +1,51 @@
+name: Step 2 - Implementation
+description: Agent reads docs/PLAN.md and implements the immediate phase (RTL, testbench, docs)
+title: "[Implementation] "
+labels: ['enhancement']
+assignees: ['Copilot']
+
+body:
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: "Select Issue Type"
+      description: "This form creates an Implementation issue. Copilot will read docs/PLAN.md and execute the immediate phase (which may include multiple modules). First, Copilot should set this issue's title to \"[Implementation] – {phase_name}\" where {phase_name} is the first immediate phase in docs/PLAN.md."
+      options:
+        - Implementation
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue_description
+    attributes:
+      label: "Instructions for the agent (prompt)"
+      description: "This text is the main prompt for Copilot. Edit to add hints (e.g. focus on RTL only, skip to a specific PLAN step)."
+      value: |
+        1. Read docs/PLAN.md and identify the first immediate phase to implement (a phase can be a list of modules).
+           - Use the first phase that still has unchecked items (or the first phase in the plan if none are checked/unchecked).
+        2. Update this issue's title to "[Implementation] – {phase_name}" using the resolved phase name.
+        3. Study .github/agents/ (and its prompt templates) to understand the requirements and expected outputs for RTL, testbench, and documentation.
+        4. Execute the tasks for the resolved phase (all modules in that phase):
+           - Implement synthesizable RTL for each module
+           - Implement a Verilog testbench for each module
+           - Write Markdown documentation for each module
+        5. **Hard gate: do not claim completion unless tests actually run.**
+           - For each module, compile and run the unit testbench with Icarus Verilog:
+             - `iverilog -g2012 -o build/<module>.out tb/<module>_tb.v rtl/<module>.v`
+             - `vvp build/<module>.out`
+           - If any compile/runtime error occurs, iterate on RTL/TB until the sim exits cleanly.
+           - If a module has no TB yet (should not happen in Implementation), treat it as failing and create one.
+        6. **All simulation artifacts must be stored under a phase-scoped directory.**
+           - Use the resolved phase name from `docs/PLAN.md` to choose a stable folder: `results/phase-{phase_name}/`
+           - Create the folder if missing.
+           - Store module logs and dumps under this directory (e.g., `<results_dir>/<module>_sim.log`, CSVs, VCDs).
+        7. Update or create **`<results_dir>/<module>_result.json`** for every module in the phase.
+           - Required fields: `module`, `rtl_done`, `tb_done`, `doc_done`, `simulation_passed`, `coverage_completed`, `coverage_percentage`, `plan_item_completed`.
+           - Set `simulation_passed: true` only if `vvp` was executed successfully for that module.
+           - Set `plan_item_completed: true` only if RTL+TB+docs exist **and** simulation_passed is true.
+        8. Attach debugging artifacts when failing:
+           - Include the key `error_summary` (string) and `sim_log` (string path under `<results_dir>/...`) in the JSON, or paste the relevant log excerpt in the issue.
+        9. **Do not close the issue** unless every module in the phase has `simulation_passed: true` in `<results_dir>/<module>_result.json`.
+    validations:
+      required: true

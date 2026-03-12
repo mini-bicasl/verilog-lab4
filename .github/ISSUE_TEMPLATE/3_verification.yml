@@ -1,0 +1,48 @@
+name: Step 3 - Verification
+description: Add tests, tighten constraints, or refine RTL/docs (see INSTRUCTION.md Step 4)
+title: "[Verification] "
+labels: ['bug']
+assignees: ['Copilot']
+
+body:
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: "Select Issue Type"
+      description: "This form creates a Verification issue. No automatic RTL/TB/Doc generation; use for coverage, constraints, or refinements."
+      options:
+        - Verification
+      default: 0
+    validations:
+      required: true
+
+  - type: input
+    id: module_name
+    attributes:
+      label: "Module name"
+      description: "Optional. Leave blank or N/A for project-wide verification. Or name a module (e.g. ddr4_ctrl_top) to focus verification on that block."
+      placeholder: "e.g. N/A, ddr4_ctrl_top"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: verification_focus
+    attributes:
+      label: "What do you want to improve?"
+      description: "Select one or more (see INSTRUCTION.md Step 4)."
+      options:
+        - label: "Add more tests (new scenarios, corner cases, stress tests)"
+          required: false
+        - label: "Tighten constraints (protocol/timing/assertions/coverage goals)"
+          required: false
+        - label: "Refine RTL or documentation based on failing tests or coverage gaps"
+          required: false
+
+  - type: textarea
+    id: issue_description
+    attributes:
+      label: "Description (optional)"
+      description: "Leave blank or add a short note. Agents can use ARCHITECTURE.md, PLAN.md, and results/ for context."
+      placeholder: "Optional: e.g. Add corner-case tests for the DDR4 controller; improve coverage for refresh FSM."
+    validations:
+      required: false

@@ -1,0 +1,38 @@
+name: Step 1 - Specification
+description: Capture high-level idea and generate/update ARCHITECTURE.md
+title: "[Specification] "
+labels: ['enhancement']
+assignees: ['Copilot']
+
+body:
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: "Select Issue Type"
+      description: "This form creates a Specification issue. The workflow uses this to route; no code generation runs."
+      options:
+        - Specification
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue_description
+    attributes:
+      label: "Idea or description (optional)"
+      description: "Agents will use docs/ARCHITECTURE.md and any existing docs/specs in this repo. If you write something, describe the high-level RTL idea in plain language and call out any standard(s) it must comply with (name + version). Example: DDR4 (JEDEC JESD79-4), AXI4, PCIe, USB, Ethernet (IEEE 802.3)."
+      value: "Provide a detailed documentation in docs/ARCHITECTURE.md for a commercial server-grade DDR4 controller with ECC, refresh logic, and configurable timing. Target JEDEC DDR4 (JESD79-4)."
+    validations:
+      required: true
+
+  - type: textarea
+    id: standards_and_links
+    attributes:
+      label: "Standards / reference documents (recommended)"
+      description: "If your design is standards-based, list the exact standard names + versions and add official links (PDF/spec pages). If the document is paywalled or copyrighted, DO NOT ask the agent to download it—attach excerpts you are allowed to share or summarize requirements in your own words."
+      placeholder: |-
+        - JEDEC JESD79-4 (DDR4 SDRAM), link: <official URL>
+        - ARM AMBA AXI4, link: <official URL>
+        - (Optional) vendor/controller datasheet(s), link(s): ...
+    validations:
+      required: false
