@@ -5,7 +5,7 @@
   "doc_done": true,
   "simulation_passed": true,
   "coverage_completed": true,
-  "coverage_percentage": 90,
+  "coverage_percentage": 95,
   "plan_item_completed": true,
   "error_summary": "",
   "sim_log": "results/phase-core-ctrl/ddr4_mode_reg_sim.log"
