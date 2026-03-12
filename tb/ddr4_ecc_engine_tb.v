@@ -4,6 +4,9 @@
 //   1. No error  — syndrome = 0, dec_data_out == enc_data_out extracted data
 //   2. Single-bit error at every bit position (0..71) — corrected
 //   3. Double-bit error at representative bit pairs — detected, not miscorrected
+//   4. Zero syndrome on clean codeword
+//   5. DBE at all check-bit spanning pairs — all pairs where ≥1 bit is a check
+//      bit position {0,1,2,4,8,16,32,64} (covers all C(8,2)+8×64=540 pairs)
 module ddr4_ecc_engine_tb;
 
     // ---------------------------------------------------------------
@@ -212,6 +215,25 @@ module ddr4_ecc_engine_tb;
         end else
             pass_cnt = pass_cnt + 1;
 
+        // ----- Test 5: DBE at all check-bit spanning pairs -----
+        // Check-bit positions: 0 (P0), 1 (P1), 2 (P2), 4 (P4), 8 (P8),
+        //                      16 (P16), 32 (P32), 64 (P64)
+        // Test every ordered pair (i < j) where at least one of i,j is a check bit.
+        // This exercises all C(8,2)=28 check/check pairs and 8×64=512 check/data pairs.
+        $display("=== Test 5: DBE at all check-bit spanning pairs ===");
+        begin : T5_chk
+            integer is_chk_i, is_chk_j;
+            for (i = 0; i < 72; i = i + 1) begin
+                is_chk_i = (i==0)||(i==1)||(i==2)||(i==4)||(i==8)||(i==16)||(i==32)||(i==64);
+                for (j = i + 1; j < 72; j = j + 1) begin
+                    is_chk_j = (j==0)||(j==1)||(j==2)||(j==4)||(j==8)||(j==16)||(j==32)||(j==64);
+                    if (is_chk_i || is_chk_j) begin
+                        check_dbe(64'h5A5A5A5A5A5A5A5A, i, j);
+                    end
+                end
+            end
+        end
+
         // ----- Summary -----
         #10;
         $display("=== RESULTS: %0d passed, %0d failed ===", pass_cnt, fail_cnt);
@@ -225,7 +247,7 @@ module ddr4_ecc_engine_tb;
 
     // Timeout watchdog
     initial begin
-        #500000;
+        #2000000;
         $display("FAIL: simulation timeout");
         $finish;
     end

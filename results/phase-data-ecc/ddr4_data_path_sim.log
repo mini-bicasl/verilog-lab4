@@ -9,8 +9,12 @@ PASS T2: clean read data, correct ID, no ECC error
 PASS T3: SBE detected, data corrected
 === Test 4: Back-to-back writes ===
 PASS T4: back-to-back writes completed without backpressure
-=== Test 5: FIFO backpressure ===
-PASS T5: FIFO backpressure test run (wr_ready=1)
-=== RESULTS: 7 passed, 0 failed ===
+=== Test 5: FIFO backpressure and empty state ===
+PASS T5: FIFO empty OE de-asserted (wr_ready=1)
+=== Test 6: Double-bit ECC error propagation ===
+PASS T6: DBE detected, rd_ecc_err set (no false SBE correction)
+=== Test 7: Back-to-back reads ===
+PASS T7: 4 back-to-back reads all correct
+=== RESULTS: 9 passed, 0 failed ===
 PASS: ddr4_data_path all tests passed
-tb/ddr4_data_path_tb.v:337: $finish called at 415000 (1ps)
+tb/ddr4_data_path_tb.v:455: $finish called at 485000 (1ps)

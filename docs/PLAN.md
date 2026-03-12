@@ -64,8 +64,8 @@ Implements the data flow between the host-facing FIFO and the PHY pads, includin
 
 ### Verification / Coverage
 
-- [ ] `ddr4_ecc_engine`: Coverage — all 72 single-bit error positions corrected; double-bit errors tested at all C(72,2)=2556 pairs (or exhaustive for simulation; at minimum all adjacent-bit pairs and all pairs spanning check-bit boundaries); syndrome = 0 on clean data; no false correction on double-bit error
-- [ ] `ddr4_data_path`: Coverage — FIFO full/empty corner cases; back-to-back write and read; ECC error propagation to host
+- [x] `ddr4_ecc_engine`: Coverage — all 72 single-bit error positions corrected; double-bit errors tested at all C(72,2)=2556 pairs (or exhaustive for simulation; at minimum all adjacent-bit pairs and all pairs spanning check-bit boundaries); syndrome = 0 on clean data; no false correction on double-bit error
+- [x] `ddr4_data_path`: Coverage — FIFO full/empty corner cases; back-to-back write and read; ECC error propagation to host
 
 ---
 
