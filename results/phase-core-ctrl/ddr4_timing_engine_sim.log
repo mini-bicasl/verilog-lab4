@@ -5,5 +5,17 @@ Test 2: PRE -> tRP
 tRP recovered correctly
 Test 3: REF -> tRFC
 tRFC recovered correctly
+Test 4: ACT -> tRAS, tRC, tRRD_L, tRRD_S, tFAW
+tRAS, tRC, tRRD_L, tRRD_S, tFAW recovered correctly
+Test 5: back-to-back ACT same/diff bank group
+back-to-back ACT same/diff bank group OK
+Test 6: WR -> tWR, tWTR_L, tWTR_S, tCCD_L, tCCD_S
+tWR, tWTR_L, tWTR_S, tCCD_L, tCCD_S recovered correctly
+Test 7: RD -> tRTP, tCCD_L, tCCD_S
+tRTP, tCCD_L, tCCD_S from RD OK
+Test 8: MRS -> tMOD
+tMOD recovered correctly
+Test 9: ZQCL -> tZQ
+tZQ recovered correctly
 SIMULATION PASSED
-tb/ddr4_timing_engine_tb.v:122: $finish called at 645000 (1ps)
+tb/ddr4_timing_engine_tb.v:242: $finish called at 1855000 (1ps)

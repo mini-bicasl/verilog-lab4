@@ -100,6 +100,95 @@ module ddr4_refresh_ctrl_tb;
             $fatal(1, "SIMULATION FAILED: sr_active should deassert after exit_req");
         $display("sr_active deasserted");
 
+        // --- Test 5: FGR×2 — period should halve ---
+        // Re-init: reset and use FGR mode 1
+        rst_n        = 0;
+        init_done    = 0;
+        cfg_fgr_mode = 2'd1;  // FGRx2
+        cfg_pbr_en   = 1'b0;
+        cfg_trefi    = 14'd20;
+        ref_ack      = 0;
+        repeat(4) @(posedge clk);
+        rst_n     = 1;
+        @(posedge clk);
+        init_done = 1;
+
+        $display("Test 5: FGRx2 mode — effective period = trefi/2 = 10");
+        // With FGRx2, effective period = 20/2 = 10 cycles
+        // ref_req must appear in <=15 cycles
+        wait_cnt = 0;
+        while (!ref_req) begin
+            @(posedge clk);
+            wait_cnt = wait_cnt + 1;
+            if (wait_cnt >= 30)
+                $fatal(1, "SIMULATION FAILED: FGRx2 ref_req not seen within 30 cycles");
+        end
+        if (wait_cnt > 15)
+            $fatal(1, "SIMULATION FAILED: FGRx2 period too long (%0d), expected <=15", wait_cnt);
+        $display("FGRx2 ref_req asserted after %0d cycles (OK, <=15)", wait_cnt);
+        // ACK
+        ref_ack = 1; @(posedge clk); ref_ack = 0; @(posedge clk);
+
+        // --- Test 6: FGR×4 — period should quarter ---
+        rst_n        = 0;
+        init_done    = 0;
+        cfg_fgr_mode = 2'd2;  // FGRx4
+        cfg_trefi    = 14'd20;
+        repeat(4) @(posedge clk);
+        rst_n     = 1;
+        @(posedge clk);
+        init_done = 1;
+
+        $display("Test 6: FGRx4 mode — effective period = trefi/4 = 5");
+        wait_cnt = 0;
+        while (!ref_req) begin
+            @(posedge clk);
+            wait_cnt = wait_cnt + 1;
+            if (wait_cnt >= 20)
+                $fatal(1, "SIMULATION FAILED: FGRx4 ref_req not seen within 20 cycles");
+        end
+        if (wait_cnt > 10)
+            $fatal(1, "SIMULATION FAILED: FGRx4 period too long (%0d), expected <=10", wait_cnt);
+        $display("FGRx4 ref_req asserted after %0d cycles (OK, <=10)", wait_cnt);
+        ref_ack = 1; @(posedge clk); ref_ack = 0; @(posedge clk);
+
+        // --- Test 7: PBR — bank rotates through all 16 banks ---
+        rst_n        = 0;
+        init_done    = 0;
+        cfg_fgr_mode = 2'd0;
+        cfg_pbr_en   = 1'b1;
+        cfg_trefi    = 14'd10;
+        repeat(4) @(posedge clk);
+        rst_n     = 1;
+        @(posedge clk);
+        init_done = 1;
+
+        $display("Test 7: PBR — bank rotates through all 16 banks");
+        begin : pbr_loop
+            integer b;
+            for (b = 0; b < 16; b = b + 1) begin
+                // Wait for ref_req
+                wait_cnt = 0;
+                @(posedge clk); // extra cycle so we don't exit immediately
+                while (!ref_req) begin
+                    @(posedge clk);
+                    wait_cnt = wait_cnt + 1;
+                    if (wait_cnt >= 50)
+                        $fatal(1, "SIMULATION FAILED: PBR ref_req not seen (bank %0d)", b);
+                end
+                if (ref_bank !== b[3:0])
+                    $fatal(1, "SIMULATION FAILED: PBR bank mismatch: got %0d expected %0d",
+                               ref_bank, b);
+                // Drive ACK on negedge to ensure RTL samples ref_ack=1 cleanly on next posedge
+                @(negedge clk);
+                ref_ack = 1;
+                @(posedge clk);  // RTL sees ref_ack=1 → ACK fires (ref_bank++)
+                @(negedge clk);
+                ref_ack = 0;
+            end
+        end
+        $display("PBR rotated through all 16 banks OK");
+
         $display("SIMULATION PASSED");
         $finish;
     end

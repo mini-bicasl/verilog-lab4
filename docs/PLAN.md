@@ -35,11 +35,11 @@ Implements the fundamental command flow: initialization, timing enforcement, sch
 
 ### Verification / Coverage
 
-- [ ] `ddr4_init_fsm`: Coverage — all init states visited; correct inter-state wait counts
-- [ ] `ddr4_mode_reg`: Coverage — MR0–MR6 exercised; boundary CL/CWL values
-- [ ] `ddr4_timing_engine`: Coverage — every timing bit exercised; back-to-back commands to same and different bank groups
-- [ ] `ddr4_refresh_ctrl`: Coverage — all three FGR modes; PBR covers all 16 banks; self-refresh entry and exit
-- [ ] `ddr4_cmd_scheduler`: Coverage — read/write mix; refresh preemption; multi-rank commands
+- [x] `ddr4_init_fsm`: Coverage — all init states visited; correct inter-state wait counts
+- [x] `ddr4_mode_reg`: Coverage — MR0–MR6 exercised; boundary CL/CWL values
+- [x] `ddr4_timing_engine`: Coverage — every timing bit exercised; back-to-back commands to same and different bank groups
+- [x] `ddr4_refresh_ctrl`: Coverage — all three FGR modes; PBR covers all 16 banks; self-refresh entry and exit
+- [x] `ddr4_cmd_scheduler`: Coverage — read/write mix; refresh preemption; multi-rank commands
 
 ---
 

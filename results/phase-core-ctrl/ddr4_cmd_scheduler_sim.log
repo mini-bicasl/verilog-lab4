@@ -10,5 +10,9 @@ Test 2: READ sequence ACT->RD->PRE
 Test 3: Refresh preemption
   ref_ack received
   Refresh preemption handled
+Test 4: Multi-rank commands (rank 0 and rank 1)
+  Rank 0 ACT issued (rank=0)
+  Rank 1 ACT issued (rank=1)
+  Multi-rank commands OK
 SIMULATION PASSED
-tb/ddr4_cmd_scheduler_tb.v:152: $finish called at 355000 (1ps)
+tb/ddr4_cmd_scheduler_tb.v:182: $finish called at 575000 (1ps)
