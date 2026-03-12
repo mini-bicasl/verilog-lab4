@@ -1,0 +1,4 @@
+VCD info: dumpfile results/phase-core-ctrl/ddr4_init_fsm.vcd opened for output.
+init_done asserted after 39 cycles
+SIMULATION PASSED
+tb/ddr4_init_fsm_tb.v:90: $finish called at 465000 (1ps)

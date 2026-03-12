@@ -1,0 +1,10 @@
+VCD info: dumpfile results/phase-core-ctrl/ddr4_refresh_ctrl.vcd opened for output.
+Test 1: waiting for ref_req
+ref_req asserted after 21 cycles
+ref_req deasserted after ack
+Test 3: self-refresh
+sr_active asserted
+ref_req suppressed during self-refresh
+sr_active deasserted
+SIMULATION PASSED
+tb/ddr4_refresh_ctrl_tb.v:104: $finish called at 625000 (1ps)

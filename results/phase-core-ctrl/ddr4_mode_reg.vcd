@@ -1,0 +1,184 @@
+$date
+	Thu Mar 12 10:16:19 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module ddr4_mode_reg_tb $end
+$var wire 17 ! mr_data [16:0] $end
+$var reg 2 " cfg_al [1:0] $end
+$var reg 1 # cfg_ca_parity_en $end
+$var reg 5 $ cfg_cl [4:0] $end
+$var reg 5 % cfg_cwl [4:0] $end
+$var reg 1 & cfg_dbi_rd_en $end
+$var reg 1 ' cfg_dbi_wr_en $end
+$var reg 2 ( cfg_drive_strength [1:0] $end
+$var reg 3 ) cfg_rtt_nom [2:0] $end
+$var reg 3 * cfg_rtt_park [2:0] $end
+$var reg 3 + cfg_rtt_wr [2:0] $end
+$var reg 4 , cfg_wr_recovery [3:0] $end
+$var reg 1 - clk $end
+$var reg 17 . data0 [16:0] $end
+$var reg 17 / data1 [16:0] $end
+$var reg 17 0 data2 [16:0] $end
+$var reg 17 1 data3 [16:0] $end
+$var reg 17 2 data4 [16:0] $end
+$var reg 17 3 data5 [16:0] $end
+$var reg 17 4 data6 [16:0] $end
+$var reg 3 5 mr_select [2:0] $end
+$var reg 1 6 rst_n $end
+$scope module dut $end
+$var wire 2 7 cfg_al [1:0] $end
+$var wire 1 # cfg_ca_parity_en $end
+$var wire 5 8 cfg_cl [4:0] $end
+$var wire 5 9 cfg_cwl [4:0] $end
+$var wire 1 & cfg_dbi_rd_en $end
+$var wire 1 ' cfg_dbi_wr_en $end
+$var wire 2 : cfg_drive_strength [1:0] $end
+$var wire 3 ; cfg_rtt_nom [2:0] $end
+$var wire 3 < cfg_rtt_park [2:0] $end
+$var wire 3 = cfg_rtt_wr [2:0] $end
+$var wire 4 > cfg_wr_recovery [3:0] $end
+$var wire 1 - clk $end
+$var wire 17 ? mr3 [16:0] $end
+$var wire 17 @ mr4 [16:0] $end
+$var wire 17 A mr6 [16:0] $end
+$var wire 3 B mr_select [2:0] $end
+$var wire 1 6 rst_n $end
+$var wire 17 C mr5 [16:0] $end
+$var wire 17 D mr2 [16:0] $end
+$var wire 17 E mr1 [16:0] $end
+$var wire 17 F mr0 [16:0] $end
+$var wire 3 G cwl_enc [2:0] $end
+$var reg 17 H mr_data [16:0] $end
+$upscope $end
+$scope task read_mr $end
+$var reg 17 I data [16:0] $end
+$var reg 3 J sel [2:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+$end
+#0
+$dumpvars
+bx J
+bx I
+b10000001100000 H
+b111 G
+b10000001100000 F
+b10000000000 E
+b1000111000 D
+b1000010000001 C
+b0 B
+b0 A
+b0 @
+b0 ?
+b1000 >
+b1 =
+b10 <
+b100 ;
+b0 :
+b10000 9
+b10110 8
+b0 7
+06
+b0 5
+bx 4
+bx 3
+bx 2
+bx 1
+bx 0
+bx /
+bx .
+0-
+b1000 ,
+b1 +
+b10 *
+b100 )
+b0 (
+0'
+1&
+b10000 %
+b10110 $
+1#
+b0 "
+b10000001100000 !
+$end
+#5000
+1-
+#10000
+0-
+#15000
+1-
+#20000
+0-
+#25000
+1-
+#30000
+0-
+#35000
+1-
+#40000
+0-
+#45000
+16
+1-
+#50000
+0-
+#55000
+b0 J
+1-
+#56000
+b10000000000 !
+b10000000000 H
+b1 5
+b1 B
+b1 J
+b10000001100000 .
+b10000001100000 I
+#57000
+b1000111000 !
+b1000111000 H
+b10 5
+b10 B
+b10 J
+b10000000000 /
+b10000000000 I
+#58000
+b0 !
+b0 H
+b11 5
+b11 B
+b11 J
+b1000111000 0
+b1000111000 I
+#59000
+b100 5
+b100 B
+b100 J
+b0 1
+b0 I
+#60000
+b1000010000001 !
+b1000010000001 H
+b101 5
+b101 B
+b101 J
+b0 2
+0-
+#61000
+b0 !
+b0 H
+b110 5
+b110 B
+b110 J
+b1000010000001 3
+b1000010000001 I
+#62000
+b0 4
+b0 I

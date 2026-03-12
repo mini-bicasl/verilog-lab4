@@ -1,0 +1,483 @@
+$date
+	Thu Mar 12 10:16:20 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module ddr4_cmd_scheduler_tb $end
+$var wire 1 ! wr_data_req $end
+$var wire 4 " wr_data_id [3:0] $end
+$var wire 1 # ref_ack $end
+$var wire 1 $ rd_data_req $end
+$var wire 4 % rd_data_id [3:0] $end
+$var wire 17 & dram_row [16:0] $end
+$var wire 2 ' dram_rank [1:0] $end
+$var wire 10 ( dram_col [9:0] $end
+$var wire 1 ) dram_cmd_valid $end
+$var wire 3 * dram_cmd_type [2:0] $end
+$var wire 2 + dram_bg [1:0] $end
+$var wire 2 , dram_ba [1:0] $end
+$var wire 1 - cmd_ready $end
+$var reg 1 . clk $end
+$var reg 32 / cmd_addr [31:0] $end
+$var reg 4 0 cmd_id [3:0] $end
+$var reg 2 1 cmd_type [1:0] $end
+$var reg 1 2 cmd_valid $end
+$var reg 4 3 ref_bank [3:0] $end
+$var reg 2 4 ref_rank [1:0] $end
+$var reg 1 5 ref_req $end
+$var reg 1 6 rst_n $end
+$var reg 16 7 timing_ok [15:0] $end
+$var integer 32 8 wait_cnt [31:0] $end
+$scope module dut $end
+$var wire 1 . clk $end
+$var wire 32 9 cmd_addr [31:0] $end
+$var wire 4 : cmd_id [3:0] $end
+$var wire 2 ; cmd_type [1:0] $end
+$var wire 1 2 cmd_valid $end
+$var wire 4 < ref_bank [3:0] $end
+$var wire 2 = ref_rank [1:0] $end
+$var wire 1 5 ref_req $end
+$var wire 1 6 rst_n $end
+$var wire 16 > timing_ok [15:0] $end
+$var wire 1 ? t_wr_ok $end
+$var wire 1 @ t_rtp_ok $end
+$var wire 1 A t_rrd_s_ok $end
+$var wire 1 B t_rp_ok $end
+$var wire 1 C t_rcd_ok $end
+$var wire 1 D t_ras_ok $end
+$var wire 1 E t_faw_ok $end
+$var wire 17 F pend_row [16:0] $end
+$var wire 2 G pend_rank [1:0] $end
+$var wire 10 H pend_col [9:0] $end
+$var wire 2 I pend_bg [1:0] $end
+$var wire 2 J pend_ba [1:0] $end
+$var wire 17 K dec_row [16:0] $end
+$var wire 2 L dec_rank [1:0] $end
+$var wire 10 M dec_col [9:0] $end
+$var wire 2 N dec_bg [1:0] $end
+$var wire 2 O dec_ba [1:0] $end
+$var parameter 3 P BS_ACTIVATING $end
+$var parameter 3 Q BS_ACTIVE $end
+$var parameter 3 R BS_IDLE $end
+$var parameter 3 S BS_PRECHARGING $end
+$var parameter 3 T BS_READING $end
+$var parameter 3 U BS_REFRESH $end
+$var parameter 3 V BS_WRITING $end
+$var parameter 3 W CMD_ACT $end
+$var parameter 3 X CMD_MRS $end
+$var parameter 3 Y CMD_NOP $end
+$var parameter 3 Z CMD_PRE $end
+$var parameter 3 [ CMD_RD $end
+$var parameter 3 \ CMD_REF $end
+$var parameter 3 ] CMD_WR $end
+$var reg 3 ^ bank_state [2:0] $end
+$var reg 1 - cmd_ready $end
+$var reg 2 _ dram_ba [1:0] $end
+$var reg 2 ` dram_bg [1:0] $end
+$var reg 3 a dram_cmd_type [2:0] $end
+$var reg 1 ) dram_cmd_valid $end
+$var reg 10 b dram_col [9:0] $end
+$var reg 2 c dram_rank [1:0] $end
+$var reg 17 d dram_row [16:0] $end
+$var reg 2 e open_ba [1:0] $end
+$var reg 2 f open_bg [1:0] $end
+$var reg 2 g open_rank [1:0] $end
+$var reg 17 h open_row [16:0] $end
+$var reg 32 i pend_addr [31:0] $end
+$var reg 4 j pend_id [3:0] $end
+$var reg 2 k pend_type [1:0] $end
+$var reg 1 l pend_valid $end
+$var reg 4 m rd_data_id [3:0] $end
+$var reg 1 $ rd_data_req $end
+$var reg 1 # ref_ack $end
+$var reg 4 n wr_data_id [3:0] $end
+$var reg 1 ! wr_data_req $end
+$upscope $end
+$scope task issue_cmd $end
+$var reg 32 o addr [31:0] $end
+$var reg 2 p ctype [1:0] $end
+$var reg 4 q id [3:0] $end
+$upscope $end
+$scope task wait_for_dram_cmd $end
+$var reg 3 r expected [2:0] $end
+$var integer 32 s timeout [31:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+b101 ]
+b10 \
+b110 [
+b11 Z
+b0 Y
+b1 X
+b100 W
+b100 V
+b110 U
+b11 T
+b101 S
+b0 R
+b10 Q
+b1 P
+$end
+#0
+$dumpvars
+bx s
+bx r
+bx q
+bx p
+bx o
+bx n
+bx m
+xl
+bx k
+bx j
+bx i
+bx h
+bx g
+bx f
+bx e
+bx d
+bx c
+bx b
+bx a
+bx `
+bx _
+bx ^
+b0 O
+b0 N
+b0 M
+b0 L
+b0 K
+bx J
+bx I
+bx H
+bx G
+bx F
+1E
+1D
+1C
+1B
+1A
+1@
+1?
+b1111111111111111 >
+b0 =
+b0 <
+b0 ;
+b0 :
+b0 9
+bx 8
+b1111111111111111 7
+06
+05
+b0 4
+b0 3
+02
+b0 1
+b0 0
+b0 /
+0.
+x-
+bx ,
+bx +
+bx *
+x)
+bx (
+bx '
+bx &
+bx %
+x$
+x#
+bx "
+x!
+$end
+#5000
+b0 G
+b0 F
+b0 J
+b0 I
+b0 H
+0#
+b0 "
+b0 n
+0!
+b0 %
+b0 m
+0$
+b0 (
+b0 b
+b0 &
+b0 d
+b0 ,
+b0 _
+b0 +
+b0 `
+b0 '
+b0 c
+b0 *
+b0 a
+0)
+1-
+b0 j
+b0 i
+b0 k
+0l
+b0 e
+b0 f
+b0 g
+b0 h
+b0 ^
+1.
+#10000
+0.
+#15000
+1.
+#20000
+0.
+#25000
+1.
+#30000
+0.
+#35000
+1.
+#40000
+0.
+#45000
+1.
+#50000
+16
+0.
+#55000
+1.
+#60000
+0.
+#65000
+b1 q
+b100000000000000000000000000 o
+b1 p
+1.
+#70000
+b1 L
+b1 0
+b1 :
+b100000000000000000000000000 /
+b100000000000000000000000000 9
+b1 1
+b1 ;
+12
+0.
+#75000
+b1 G
+0-
+b1 j
+b100000000000000000000000000 i
+b1 k
+1l
+1.
+#80000
+b0 8
+b110010 s
+b100 r
+02
+0.
+#85000
+b1 g
+b1 '
+b1 c
+b100 *
+b100 a
+1)
+b1 ^
+b1 8
+1.
+#90000
+0.
+#95000
+b10 ^
+0)
+b0 8
+b101 r
+1.
+#100000
+0.
+#105000
+1-
+0l
+b1 "
+b1 n
+1!
+b101 *
+b101 a
+1)
+b100 ^
+b1 8
+1.
+#110000
+0.
+#115000
+b11 *
+b11 a
+b101 ^
+0!
+1)
+b0 8
+b11 r
+1.
+#120000
+0.
+#125000
+b0 ^
+0)
+1.
+#130000
+0.
+#135000
+1.
+#140000
+0.
+#145000
+1.
+#150000
+0.
+#155000
+1.
+#160000
+0.
+#165000
+1.
+#170000
+0.
+#175000
+b10 q
+b0 p
+1.
+#180000
+b10 0
+b10 :
+b0 1
+b0 ;
+12
+0.
+#185000
+0-
+b10 j
+b0 k
+1l
+1.
+#190000
+b100 r
+02
+0.
+#195000
+b100 *
+b100 a
+1)
+b1 ^
+b1 8
+1.
+#200000
+0.
+#205000
+b10 ^
+0)
+b0 8
+b110 r
+1.
+#210000
+0.
+#215000
+1-
+0l
+b10 %
+b10 m
+1$
+b110 *
+b110 a
+1)
+b11 ^
+b1 8
+1.
+#220000
+0.
+#225000
+b11 *
+b11 a
+b101 ^
+0$
+1)
+b0 8
+b11 r
+1.
+#230000
+0.
+#235000
+b0 ^
+0)
+1.
+#240000
+0.
+#245000
+1.
+#250000
+0.
+#255000
+1.
+#260000
+0.
+#265000
+1.
+#270000
+0.
+#275000
+1.
+#280000
+0.
+#285000
+1.
+#290000
+15
+0.
+#295000
+1#
+b0 '
+b0 c
+b10 *
+b10 a
+1)
+b110 ^
+b1 8
+1.
+#300000
+0.
+#305000
+b0 ^
+0#
+0)
+1.
+#310000
+05
+0.
+#315000
+1.
+#320000
+0.
+#325000
+1.
+#330000
+0.
+#335000
+1.
+#340000
+0.
+#345000
+1.
+#350000
+0.
+#355000
+1.

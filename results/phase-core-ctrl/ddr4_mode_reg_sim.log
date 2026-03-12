@@ -1,0 +1,5 @@
+VCD info: dumpfile results/phase-core-ctrl/ddr4_mode_reg.vcd opened for output.
+MR0=0x02060 MR1=0x00400 MR2=0x00238 MR3=0x00000
+MR4=0x00000 MR5=0x01081 MR6=0x00000
+SIMULATION PASSED
+tb/ddr4_mode_reg_tb.v:105: $finish called at 62000 (1ps)

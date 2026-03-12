@@ -1,0 +1,14 @@
+VCD info: dumpfile results/phase-core-ctrl/ddr4_cmd_scheduler.vcd opened for output.
+Test 1: WRITE sequence ACT->WR->PRE
+  Saw ACT
+  Saw WR
+  Saw PRE
+Test 2: READ sequence ACT->RD->PRE
+  Saw ACT
+  Saw RD
+  Saw PRE
+Test 3: Refresh preemption
+  ref_ack received
+  Refresh preemption handled
+SIMULATION PASSED
+tb/ddr4_cmd_scheduler_tb.v:152: $finish called at 355000 (1ps)
