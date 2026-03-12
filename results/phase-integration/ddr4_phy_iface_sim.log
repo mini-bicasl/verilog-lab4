@@ -1,0 +1,16 @@
+VCD info: dumpfile results/phase-integration/ddr4_phy_iface.vcd opened for output.
+Test 1: CK differential output
+  T1: ddr4_ck_t=1 ddr4_ck_c=0 (differential)
+Test 2: ACT command propagated to DDR4 pads
+  T2: ACT command on pads OK (act_n=0, a=1abcd)
+Test 3: DQ output-enable and data drive
+  T3: DQ output path OK (dq_out[7:0]=aa)
+Test 4: DQ tristate during read and phy_dqs_valid
+  T4: phy_dqs_valid=1, phy_dq_in=123456789abcdef012
+Test 5: NOP / deselect — ddr4_cs_n=1 after cmd_valid=0
+  T5: NOP/deselect OK (ddr4_cs_n=1)
+Test 6: RESET_N propagation
+  T6: ddr4_reset_n=1 OK
+=== RESULTS: 6 passed, 0 failed ===
+PASS: ddr4_phy_iface all tests passed
+tb/ddr4_phy_iface_tb.v:231: $finish called at 345000 (1ps)

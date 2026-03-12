@@ -1,0 +1,13 @@
+VCD info: dumpfile results/phase-integration/ddr4_host_iface.vcd opened for output.
+Test 1: Single AXI4 WRITE -> cmd_valid/cmd_type=WRITE
+  T1: cmd_valid seen, cmd_type=WRITE, addr=00001000, id=1
+Test 2: Single AXI4 READ -> cmd_valid/cmd_type=READ and rdata
+  T2: cmd_valid seen, cmd_type=READ, addr=00002000
+  T2: rvalid seen, rdata=cafebabe12345678
+Test 3: 2-beat burst WRITE -> two cmd_valid pulses
+  T3: saw 2 cmd_valid pulses for 2-beat burst
+Test 4: cmd_ready back-pressure
+  T4: cmd_valid asserted after cmd_ready released
+=== RESULTS: 4 passed, 0 failed ===
+PASS: ddr4_host_iface all tests passed
+tb/ddr4_host_iface_tb.v:398: $finish called at 615000 (1ps)
