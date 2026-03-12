@@ -455,7 +455,8 @@ module ddr4_data_path_tb;
         $finish;
     end
 
-    // Timeout watchdog
+    // Timeout watchdog: 2 ms comfortably covers 9 test cases including
+    // back-to-back read/write sequences and the DBE injection test.
     initial begin
         #2000000;
         $display("FAIL: simulation timeout");

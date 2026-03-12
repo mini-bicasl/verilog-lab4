@@ -245,7 +245,8 @@ module ddr4_ecc_engine_tb;
         $finish;
     end
 
-    // Timeout watchdog
+    // Timeout watchdog: 2 ms covers 841 test cases (Test 5 alone exercises
+    // 540 DBE check-bit spanning pairs × ~2 ns each ≈ 1.1 µs extra).
     initial begin
         #2000000;
         $display("FAIL: simulation timeout");
