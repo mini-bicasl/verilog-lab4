@@ -1,0 +1,14 @@
+VCD info: dumpfile results/phase-integration/ddr4_ctrl_top.vcd opened for output.
+Test 1: Init sequence — wait for init_done
+  T1: init_done asserted after ~24 cycles
+Test 2: AXI4 WRITE -> BRESP OKAY
+  T2: WRITE BRESP=OKAY
+Test 3: AXI4 READ -> rvalid returned
+  T3: rvalid asserted, rdata=a54b4b4b4a96952a
+Test 4: init_done stable after initialization
+  T4: init_done stable=1 after 20 cycles
+Test 5: DDR4 CK differential toggle
+  T5: CK differential OK (ck_t toggles with clk)
+=== RESULTS: 5 passed, 0 failed ===
+PASS: ddr4_ctrl_top all tests passed
+tb/ddr4_ctrl_top_tb.v:342: $finish called at 865000 (1ps)

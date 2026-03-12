@@ -75,21 +75,21 @@ Integrates all modules into the top-level and provides the AXI4 host interface a
 
 ### RTL Modules
 
-- [ ] `ddr4_host_iface`: AXI4 slave; address decoding; write channel buffering; read response reorder buffer; ECC error reporting to AXI SLVERR
-- [ ] `ddr4_phy_iface`: Abstract PHY with differential CK, DQS I/O buffers; tristate DQ/DQS control; SSTL/POD pad model
-- [ ] `ddr4_ctrl_top`: Top-level wrapper tying all sub-modules; configuration port muxing (internal defaults vs. cfg_* inputs); ECC sticky error registers; init_done, ref_in_progress status
+- [x] `ddr4_host_iface`: AXI4 slave; address decoding; write channel buffering; read response reorder buffer; ECC error reporting to AXI SLVERR
+- [x] `ddr4_phy_iface`: Abstract PHY with differential CK, DQS I/O buffers; tristate DQ/DQS control; SSTL/POD pad model
+- [x] `ddr4_ctrl_top`: Top-level wrapper tying all sub-modules; configuration port muxing (internal defaults vs. cfg_* inputs); ECC sticky error registers; init_done, ref_in_progress status
 
 ### Testbenches
 
-- [ ] `ddr4_host_iface`: TB — issues AXI4 WRITE and READ bursts; verifies cmd_valid/cmd_ready handshake; verifies write response; verifies read data return with correct ID
-- [ ] `ddr4_phy_iface`: TB — drives ctrl_* signals; verifies DDR4 pad output timing; verifies DQ tristate during read; verifies DQS preamble
-- [ ] `ddr4_ctrl_top`: Integration TB — full AXI4 write followed by read; verifies correct round-trip data; ECC error injection; refresh during idle; init sequence on reset release
+- [x] `ddr4_host_iface`: TB — issues AXI4 WRITE and READ bursts; verifies cmd_valid/cmd_ready handshake; verifies write response; verifies read data return with correct ID
+- [x] `ddr4_phy_iface`: TB — drives ctrl_* signals; verifies DDR4 pad output timing; verifies DQ tristate during read; verifies DQS preamble
+- [x] `ddr4_ctrl_top`: Integration TB — full AXI4 write followed by read; verifies correct round-trip data; ECC error injection; refresh during idle; init sequence on reset release
 
 ### Documentation
 
-- [ ] `docs/ddr4_host_iface.md`: AXI4 transaction flow, address mapping, error response behavior
-- [ ] `docs/ddr4_phy_iface.md`: PHY abstraction model, I/O buffer instantiation guidance
-- [ ] `docs/ddr4_ctrl_top.md`: Integration diagram, configuration port usage, status/error register map
+- [x] `docs/ddr4_host_iface.md`: AXI4 transaction flow, address mapping, error response behavior
+- [x] `docs/ddr4_phy_iface.md`: PHY abstraction model, I/O buffer instantiation guidance
+- [x] `docs/ddr4_ctrl_top.md`: Integration diagram, configuration port usage, status/error register map
 
 ### Verification / Coverage
 
