@@ -9,6 +9,13 @@ Test 4: init_done stable after initialization
   T4: init_done stable=1 after 20 cycles
 Test 5: DDR4 CK differential toggle
   T5: CK differential OK (ck_t toggles with clk)
-=== RESULTS: 5 passed, 0 failed ===
+Test 6: ECC single-bit error — inject via ddr4_dq_in
+  T6: ECC path exercised — rvalid=1 ecc_single_err=0 rresp=00
+Test 7: ref_in_progress is a valid logic output
+  T7: ref_in_progress driven cleanly for 200 cycles, last value=1
+Test 8: Self-refresh entry and exit
+  T8a: sr_active asserted (entry OK) after 1 cycles
+  T8b: sr_active deasserted (exit OK) after 1 cycles
+=== RESULTS: 8 passed, 0 failed ===
 PASS: ddr4_ctrl_top all tests passed
-tb/ddr4_ctrl_top_tb.v:342: $finish called at 865000 (1ps)
+tb/ddr4_ctrl_top_tb.v:470: $finish called at 3105000 (1ps)
