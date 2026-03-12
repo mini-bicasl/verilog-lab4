@@ -1,0 +1,8 @@
+VCD info: dumpfile results/phase-data-ecc/ddr4_ecc_engine.vcd opened for output.
+=== Test 1: No-error encode/decode ===
+=== Test 2: SBE at every bit position ===
+=== Test 3: DBE at adjacent and boundary pairs ===
+=== Test 4: Zero syndrome on clean codeword ===
+=== RESULTS: 301 passed, 0 failed ===
+PASS: ddr4_ecc_engine all tests passed
+tb/ddr4_ecc_engine_tb.v:223: $finish called at 632000 (1ps)
